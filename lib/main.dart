@@ -68,6 +68,30 @@ class MyHomePage extends StatelessWidget {
       body: ListView(
         children: [
           ListItemWidget(
+            title: 'Guided Camera',
+            description: 'Guided camera steps',
+            onTap: () async{
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const StepExteriorPhotos(),
+                ),
+              );
+            },
+          ),
+          ListItemWidget(
+            title: 'Car  Detection',
+            description: 'Detect if car is available in the image',
+            onTap: () async{
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CarDetectionPage(),
+                ),
+              );
+            },
+          ),
+          ListItemWidget(
             title: 'Make Model Recognizer',
             description: 'Cloud ML model, recognize make, model,year,color and angle of car in given image',
             onTap: () async{
@@ -97,18 +121,7 @@ class MyHomePage extends StatelessWidget {
               );
             },
           ),
-          ListItemWidget(
-            title: 'Guided Camera',
-            description: 'Guided camera steps',
-            onTap: () async{
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const StepExteriorPhotos(),
-                ),
-              );
-            },
-          ),
+
           ListItemWidget(
             title: 'Car Angle Detection',
             description: 'Detect car angle',
@@ -121,20 +134,9 @@ class MyHomePage extends StatelessWidget {
               );
             },
           ),
+
           ListItemWidget(
-            title: 'Car  Detection',
-            description: 'Detect if car is available in the image',
-            onTap: () async{
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const CarDetectionPage(),
-                ),
-              );
-            },
-          ),
-          ListItemWidget(
-            title: 'Image Enhancement',
+            title: 'Image Enhancement Option 1',
             description: 'Api enhances image quality',
             onTap: () async{
               Navigator.push(
@@ -146,21 +148,21 @@ class MyHomePage extends StatelessWidget {
             },
           ),
 
+          // ListItemWidget(
+          //   title: 'Segment Api',
+          //   description: 'Car segment api example',
+          //   onTap: () async{
+          //     Navigator.push(
+          //       context,
+          //       MaterialPageRoute(
+          //         builder: (context) => const SegmentCarPage(),
+          //       ),
+          //     );
+          //   },
+          // ),
           ListItemWidget(
-            title: 'Segment Api',
-            description: 'Car segment api example',
-            onTap: () async{
-              Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const SegmentCarPage(),
-                ),
-              );
-            },
-          ),
-          ListItemWidget(
-            title: 'EnhanceImgTFM1',
-            description: 'Enhance the image resolution using enhanceImgTFM1',
+            title: 'Image Enhancement Option 2',
+            description: 'Image Enhancement Option 2',
             onTap: () async{
               Navigator.push(
                 context,
@@ -173,8 +175,8 @@ class MyHomePage extends StatelessWidget {
 
 
           ListItemWidget(
-            title: 'DarknessTFM2',
-            description: 'This API removes the darkness from image, but you will loss some resolutions.',
+            title: 'Darkness Removal Option 1',
+            description: 'This API removes the darkness from image.',
             onTap: () async{
               Navigator.push(
                 context,
@@ -185,8 +187,8 @@ class MyHomePage extends StatelessWidget {
             },
           ),
           ListItemWidget(
-            title: 'RemoveDarknessM1 Api',
-            description: 'This API removes the darkness from image, but you will loss some resolutions.',
+            title: 'Darkness Removal Option 2',
+            description: 'This API removes the darkness from image.',
             onTap: () async{
               Navigator.push(
                 context,
@@ -194,6 +196,14 @@ class MyHomePage extends StatelessWidget {
                   builder: (context) => const RemoveDarknessM1(),
                 ),
               );
+            },
+          ),
+
+          ListItemWidget(
+            title: 'Car Damage Prediction',
+            description: 'This API predict damage to car parts',
+            onTap: () async{
+             // TODO:Mohammad please navigate to damage api page from here
             },
           ),
 
