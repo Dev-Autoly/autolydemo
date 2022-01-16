@@ -14,47 +14,71 @@ class DemoNetworkCallInProgress extends StatefulWidget {
 }
 
 class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
-
   CarNetPostProcessResponse _carNetData;
   TorchImageResponse _imageTorchApiData;
   TorchImageResponse _enhanceImgTFM1Data;
   TorchImageResponse _removeDarknessM1Data;
   TorchImageResponse _darknessTFM2Data;
-
-
+  ImageDetail _imageSizeDetail;
+  bool isAllApiSuccessfull = false;
 
   Future<CarNetPostProcessResponse> _carMakeModel;
   Future<TorchImageResponse> _imageTorchApi;
   Future<TorchImageResponse> _enhanceImgTFM1;
   Future<TorchImageResponse> _removeDarknessM1;
   Future<TorchImageResponse> _darknessTFM2;
+  Future<ImageDetail> _imageDetail;
 
   Future<CarNetPostProcessResponse> _carNetModel() async {
-   return carNetProcessing(imagePath: widget.selectedImage.imagePath);
+    return carNetProcessing(imagePath: widget.selectedImage.imagePath);
   }
 
-  Future<TorchImageResponse> _torchM2Api()async{
+  Future<TorchImageResponse> _torchM2Api() async {
     return imageTorchApi(imagePath: widget.selectedImage.imagePath);
   }
 
-  Future<TorchImageResponse> _tfm1Api()async{
+  Future<TorchImageResponse> _tfm1Api() async {
     return enhanceImgTFM1(imagePath: widget.selectedImage.imagePath);
   }
 
-  Future<TorchImageResponse> _darknessM1()async{
+  Future<TorchImageResponse> _darknessM1() async {
     return removeDarknessM1(imagePath: widget.selectedImage.imagePath);
   }
 
-  Future<TorchImageResponse> _tfm2Api()async{
+  Future<TorchImageResponse> _tfm2Api() async {
     return darknessTFM2(imagePath: widget.selectedImage.imagePath);
   }
 
-  Future<ImageDetail> _getImageDetail()async{
+  Future<ImageDetail> _getImageDetail() async {
     return getImageDetail(imagePath: widget.selectedImage.imagePath);
+  }
+
+  bool checkApiStatus(TorchImageResponse response) {
+    if (response != null) {
+      if (response.isSuccess) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  bool updateApiStatus() {
+    try {
+      if (_carNetData.carNetModel.detections.isNotEmpty) {
+        return checkApiStatus(_imageTorchApiData) &&
+            checkApiStatus(_enhanceImgTFM1Data) &&
+            checkApiStatus(_removeDarknessM1Data) &&
+            checkApiStatus(_darknessTFM2Data);
+      }
+    } catch (e) {
+      return false;
+    }
+    return false;
   }
 
   @override
   void initState() {
+    _imageDetail = _getImageDetail();
     _carMakeModel = _carNetModel();
     _imageTorchApi = _torchM2Api();
     _enhanceImgTFM1 = _tfm1Api();
@@ -89,23 +113,64 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 ),
               ),
             ),
+            FutureBuilder<ImageDetail>(
+              future: _imageDetail,
+              builder: (context, snapshot) {
+                String msg = 'Getting image details';
+                if (snapshot.hasError) {
+                  return ProcessTextWidget(
+                    msg: msg,
+                    isDone: true,
+                    hasError: true,
+                  );
+                }
 
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    _imageSizeDetail = snapshot.data;
+                    return ProcessTextWidget(
+                      msg: msg,
+                      isDone: true,
+                      hasError: false,
+                    );
+                  } else {
+                    return ProcessTextWidget(
+                      msg: msg,
+                      isDone: true,
+                      hasError: true,
+                    );
+                  }
+                }
+
+                return ProcessTextWidget(
+                  msg: msg,
+                  isDone: false,
+                  hasError: false,
+                );
+              },
+            ),
             FutureBuilder<CarNetPostProcessResponse>(
               future: _carMakeModel,
               builder: (context, snapshot) {
-                String msg = 'Recognizing car position';
-                String msg2 = 'Recognizing make model of car';
+                String msg = 'Uploading Image';
+                String msg1 = 'Getting car position';
+                String msg2 = 'Getting make model of car';
                 if (snapshot.hasError) {
-                  return  Column(
+                  return Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
                       ProcessTextWidget(
-                        msg: msg2,
+                        msg: msg,
                         isDone: true,
                         hasError: true,
                       ),
                       ProcessTextWidget(
-                        msg: msg,
+                        msg: msg1,
+                        isDone: true,
+                        hasError: true,
+                      ),
+                      ProcessTextWidget(
+                        msg: msg2,
                         isDone: true,
                         hasError: true,
                       ),
@@ -113,36 +178,46 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                   );
                 }
 
-                if(snapshot.connectionState==ConnectionState.done){
-                  if(snapshot.hasData){
-                    if(snapshot.data.imageResponse.isSuccess){
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.hasData) {
+                    if (snapshot.data.imageResponse.isSuccess) {
                       _carNetData = snapshot.data;
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ProcessTextWidget(
-                            msg: msg2,
+                            msg: msg,
                             isDone: true,
                             hasError: false,
                           ),
                           ProcessTextWidget(
-                            msg: msg,
+                            msg: msg1,
+                            isDone: true,
+                            hasError: false,
+                          ),
+                          ProcessTextWidget(
+                            msg: msg2,
                             isDone: true,
                             hasError: false,
                           ),
                         ],
                       );
-                    }else{
+                    } else {
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           ProcessTextWidget(
-                            msg: msg2,
+                            msg: msg,
+                            isDone: true,
+                            hasError: false,
+                          ),
+                          ProcessTextWidget(
+                            msg: msg1,
                             isDone: true,
                             hasError: true,
                           ),
                           ProcessTextWidget(
-                            msg: msg,
+                            msg: msg2,
                             isDone: true,
                             hasError: true,
                           ),
@@ -167,28 +242,28 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 );
               },
             ),
-
             FutureBuilder<TorchImageResponse>(
-              future:_imageTorchApi,
+              future: _imageTorchApi,
               builder: (context, snapshot) {
-                String msg = 'Enhancing image quality using TorchM2 api';
+                String msg = 'Enhancing image Option 1';
                 if (snapshot.hasError) {
-                  return  ProcessTextWidget(
+                  return ProcessTextWidget(
                     msg: msg,
                     isDone: true,
                     hasError: true,
                   );
                 }
 
-                if(snapshot.connectionState==ConnectionState.done){
-                  if(snapshot.data.isSuccess){
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.data.isSuccess) {
                     _imageTorchApiData = snapshot.data;
+                    isAllApiSuccessfull = updateApiStatus();
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
                       hasError: false,
                     );
-                  }else{
+                  } else {
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -204,28 +279,29 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 );
               },
             ),
-
             FutureBuilder<TorchImageResponse>(
               future: _enhanceImgTFM1,
               builder: (context, snapshot) {
-                String msg = 'Enhancing image quality using TFM1 api';
+                String msg = 'Enhancing image Option2';
+
                 if (snapshot.hasError) {
-                  return  ProcessTextWidget(
+                  return ProcessTextWidget(
                     msg: msg,
                     isDone: true,
                     hasError: true,
                   );
                 }
 
-                if(snapshot.connectionState==ConnectionState.done){
-                  if(snapshot.data.isSuccess){
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.data.isSuccess) {
                     _enhanceImgTFM1Data = snapshot.data;
+                    isAllApiSuccessfull = updateApiStatus();
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
                       hasError: false,
                     );
-                  }else{
+                  } else {
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -241,28 +317,27 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 );
               },
             ),
-
             FutureBuilder<TorchImageResponse>(
               future: _removeDarknessM1,
               builder: (context, snapshot) {
-                String msg = 'Removing darkness from image using yozbt3xo3q api';
+                String msg = 'Removing darkness option 1';
                 if (snapshot.hasError) {
-                  return  ProcessTextWidget(
+                  return ProcessTextWidget(
                     msg: msg,
                     isDone: true,
                     hasError: true,
                   );
                 }
 
-                if(snapshot.connectionState==ConnectionState.done){
-                  if(snapshot.data.isSuccess){
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.data.isSuccess) {
                     _removeDarknessM1Data = snapshot.data;
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
                       hasError: false,
                     );
-                  }else{
+                  } else {
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -278,30 +353,28 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 );
               },
             ),
-
             FutureBuilder<TorchImageResponse>(
               future: _darknessTFM2,
               builder: (context, snapshot) {
-                String msg = 'Removing darkness from image using TFM2 api';
+                String msg = 'Removing darkness option 2';
                 if (snapshot.hasError) {
-
-                  return  ProcessTextWidget(
+                  return ProcessTextWidget(
                     msg: msg,
                     isDone: true,
                     hasError: true,
                   );
                 }
 
-                if(snapshot.connectionState==ConnectionState.done){
-                  if(snapshot.data.isSuccess){
+                if (snapshot.connectionState == ConnectionState.done) {
+                  if (snapshot.data.isSuccess) {
                     _darknessTFM2Data = snapshot.data;
-                    return  ProcessTextWidget(
+                    return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
                       hasError: false,
                     );
-                  }else{
-                    return  ProcessTextWidget(
+                  } else {
+                    return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
                       hasError: true,
@@ -309,37 +382,41 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                   }
                 }
 
-
-                return  ProcessTextWidget(
+                return ProcessTextWidget(
                   msg: msg,
                   isDone: false,
                   hasError: false,
                 );
               },
             ),
+            ElevatedButton(
+              onPressed:  () async {
+                      ConsolidateResult _resultAll = ConsolidateResult(
+                        carNetPostProcessResponse: _carNetData,
+                        imageTorchApiResponse: _imageTorchApiData,
+                        enhanceImgTFM1Response: _enhanceImgTFM1Data,
+                        darknessTFM2Response: _darknessTFM2Data,
+                        removeDarknessM1Response: _removeDarknessM1Data,
+                        imageDetail: _imageSizeDetail,
+                      );
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => DemoResultView(
+                            result: _resultAll,
+                          ),
+                        ),
+                      );
+                    },
 
-            ElevatedButton(onPressed: ()async{
-              ImageDetail _imageDetail =await _getImageDetail();
-              ConsolidateResult _resultAll = ConsolidateResult(
-                carNetPostProcessResponse: _carNetData,
-                imageTorchApiResponse: _imageTorchApiData,
-                enhanceImgTFM1Response: _enhanceImgTFM1Data,
-                darknessTFM2Response: _darknessTFM2Data,
-                removeDarknessM1Response: _removeDarknessM1Data,
-                imageDetail: _imageDetail,
-              );
-              Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => DemoResultView(result: _resultAll,),
+              child: SizedBox(
+                height: 50,
+                width: size.width * 0.5,
+                child: const Center(
+                  child: Text('Continue'),
                 ),
-              );
-
-            }, child: SizedBox(
-              height: 50,
-              width: size.width*0.5,
-              child: const Center(child: Text('Continue'),),
-            ))
+              ),
+            )
           ],
         ),
       ),
@@ -372,7 +449,9 @@ class ProcessTextWidget extends StatelessWidget {
               ),
             ),
           ),
-          const SizedBox(width: 10,),
+          const SizedBox(
+            width: 10,
+          ),
           isDone
               ? hasError
                   ? const Icon(
@@ -391,6 +470,5 @@ class ProcessTextWidget extends StatelessWidget {
         ],
       ),
     );
-
   }
 }

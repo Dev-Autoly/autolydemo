@@ -193,6 +193,7 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
 
 Future<ImageDetail>getImageDetail({@required String imagePath})async{
 
+  await Future.delayed(const Duration(seconds: 1));
   File originalFile = File(imagePath);
   final bytes  =  originalFile.readAsBytesSync().lengthInBytes;
   final kb = bytes / 1024;

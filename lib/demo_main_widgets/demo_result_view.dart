@@ -13,17 +13,17 @@ class DemoResultView extends StatefulWidget {
 }
 
 class _DemoResultViewState extends State<DemoResultView> {
-
-  bool isCarnetModelAvailable(){
-    if(widget.result.carNetPostProcessResponse!=null){
-      if(widget.result.carNetPostProcessResponse.carNetModel!=null){
-        if(widget.result.carNetPostProcessResponse.carNetModel.detections.isNotEmpty){
+  bool isCarnetModelAvailable() {
+    if (widget.result.carNetPostProcessResponse != null) {
+      if (widget.result.carNetPostProcessResponse.carNetModel != null) {
+        if (widget.result.carNetPostProcessResponse.carNetModel.detections.isNotEmpty) {
           return true;
         }
       }
     }
     return false;
   }
+
   String getClassName() {
     if (widget.result.carNetPostProcessResponse.carNetModel.isSuccess) {
       try {
@@ -160,14 +160,28 @@ class _DemoResultViewState extends State<DemoResultView> {
     if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
       return Stack(
         children: [
-          widget.result.carNetPostProcessResponse.imageResponse.image,
+          Center(child: widget.result.carNetPostProcessResponse.imageResponse.image),
           Positioned(
-              right: 20,
-              bottom: 20,
-              child: Text(
-                getProbability(),
-                style: const TextStyle(color: Colors.red, fontSize: 31, fontWeight: FontWeight.bold),
-              ))
+            left: 20,
+            bottom: 10,
+            child: Text(
+              getProbability(),
+              style: const TextStyle(color: Colors.red, fontSize: 31, fontWeight: FontWeight.bold),
+            ),
+          ),
+          Positioned(
+            right: 10,
+            bottom: 0,
+            child: Container(
+              color: Colors.white30,
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: () {
+                  // TODO: download image available at widget.result.carNetPostProcessResponse.imageResponse.image
+                },
+              ),
+            ),
+          ),
         ],
       );
     }
@@ -182,134 +196,129 @@ class _DemoResultViewState extends State<DemoResultView> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Result'),
-        actions: [
-          ElevatedButton(
-              onPressed: () {
-                Navigator.of(context).pop();
-              },
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: const [
-                  Icon(
-                    Icons.refresh,
-                    size: 14,
-                  ),
-                  Text('Retake'),
-                ],
-              ),)
-        ],
+        // actions: [
+        // ElevatedButton(
+        //     onPressed: () {
+        //       Navigator.of(context).pop();
+        //     },
+        //     child: Column(
+        //       mainAxisSize: MainAxisSize.min,
+        //       children: const [
+        //         Icon(
+        //           Icons.refresh,
+        //           size: 14,
+        //         ),
+        //         Text('Retake'),
+        //       ],
+        //     ),)
+        //  ],
       ),
       body: SingleChildScrollView(
         child: Column(
           // crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             /// original image data
-            OriginalImageDetailImage(imageDetail: widget.result.imageDetail,),
+            OriginalImageDetailImage(
+              imageDetail: widget.result.imageDetail,
+            ),
             const DividerWidget(),
+
             /// widgets carnet api data
             const Text(
               'Car Recognition Details',
               style: TextStyle(fontSize: 21),
             ),
-            isCarnetModelAvailable()?Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TableContentRow(
-                  title: 'Class',
-                  result: getClassName(),
-                  probability: getProbability(),
-                ),
-                TableContentRow(
-                  title: 'SubClass',
-                  result: getSubClassName(),
-                  probability: getSubClassProbability(),
-                ),
-                TableContentRow(
-                  title: 'Make',
-                  result: getMakeName(),
-                  probability: getMakeProbability(),
-                ),
-                TableContentRow(
-                  title: 'Model',
-                  result: getModelName(),
-                  probability: getMakeProbability(),
-                ),
-                TableContentRow(
-                  title: 'Year',
-                  result: getYears(),
-                  probability: getMakeProbability(),
-                ),
-                TableContentRow(
-                  title: 'Color',
-                  result: getColor(),
-                  probability: getColorProbability(),
-                ),
-                TableContentRow(
-                  title: 'Angel',
-                  result: getAngel(),
-                  probability: getAngelProbability(),
-                ),
-                const SizedBox(
-                  height: 20,
-                ),
+            isCarnetModelAvailable()
+                ? Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      TableContentRow(
+                        title: 'Class',
+                        result: getClassName(),
+                        probability: getProbability(),
+                      ),
+                      TableContentRow(
+                        title: 'SubClass',
+                        result: getSubClassName(),
+                        probability: getSubClassProbability(),
+                      ),
+                      TableContentRow(
+                        title: 'Make',
+                        result: getMakeName(),
+                        probability: getMakeProbability(),
+                      ),
+                      TableContentRow(
+                        title: 'Model',
+                        result: getModelName(),
+                        probability: getMakeProbability(),
+                      ),
+                      TableContentRow(
+                        title: 'Year',
+                        result: getYears(),
+                        probability: getMakeProbability(),
+                      ),
+                      TableContentRow(
+                        title: 'Color',
+                        result: getColor(),
+                        probability: getColorProbability(),
+                      ),
+                      TableContentRow(
+                        title: 'Angel',
+                        result: getAngel(),
+                        probability: getAngelProbability(),
+                      ),
+                      const SizedBox(
+                        height: 20,
+                      ),
 
-                /// carnet box image
-                Center(
-                  child: SizedBox(
-                      height: size.height * 0.3,
-                      width: size.width * 0.8,
-                      child: Stack(
-                        children: [
-                          getCarNetBoxImage(),
-                        ],
-                      )),
-                ),
-            ],):const Padding(
-              padding:  EdgeInsets.all(8.0),
-              child:  Text('Could not recognize car'),
-            ),
-
+                      /// carnet box image
+                      Center(
+                        child: SizedBox(
+                          height: size.height * 0.3,
+                          width: size.width * 0.9,
+                          child: getCarNetBoxImage(),
+                        ),
+                      ),
+                    ],
+                  )
+                : const Padding(
+                    padding: EdgeInsets.all(8.0),
+                    child: Text('Could not recognize car'),
+                  ),
 
             const DividerWidget(),
 
-            /// Image enhancement - TFM1 model
+            /// Image enhancement - Option 1
             JuxtaposeBuilder(
               response: widget.result.enhanceImgTFM1Response,
-              modelName: 'TFM1 model',
+              modelName: 'Image enhancement Option 1',
               imageDetail: widget.result.imageDetail,
-
             ),
             const DividerWidget(),
 
-
-            /// Image enhancement - TorchM2 model
+            /// Image enhancement - Option 2
             JuxtaposeBuilder(
               response: widget.result.imageTorchApiResponse,
-              modelName: 'TorchM2 model',
+              modelName: 'Image enhancement  Option 2',
               imageDetail: widget.result.imageDetail,
-
             ),
             const DividerWidget(),
 
-            /// Image enhancement - darknessTFM2 model
+            /// Darkness remover Option 1
             JuxtaposeBuilder(
               response: widget.result.darknessTFM2Response,
-              modelName: 'darknessTFM2 model',
+              modelName: 'Darkness remover Option 1',
               imageDetail: widget.result.imageDetail,
-
             ),
             const DividerWidget(),
 
-
-            /// Image enhancement - m1-yozbt3xo3q model
+            /// Darkness remover Option 2
             JuxtaposeBuilder(
               response: widget.result.removeDarknessM1Response,
-              modelName: 'm1-yozbt3xo3q model',
+              modelName: 'Darkness remover Option 2',
               imageDetail: widget.result.imageDetail,
-
             ),
             const DividerWidget(),
-
           ],
         ),
       ),
@@ -342,28 +351,30 @@ class TableContentRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    bool hasError = result.compareTo('Could not recognized')==0;
+    bool hasError = result.compareTo('Could not recognized') == 0;
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 10),
       child: Row(children: [
         Text(
           '$title:',
-          style:   const TextStyle(fontSize: 16),
+          style: const TextStyle(fontSize: 16),
         ),
         const SizedBox(
           width: 10,
         ),
         Text(
           result.toUpperCase(),
-          style:  TextStyle(fontSize: hasError?10:16),
+          style: TextStyle(fontSize: hasError ? 10 : 16),
         ),
         const SizedBox(
           width: 20,
         ),
-        !hasError? Text(
-          'probability:$probability',
-          style: const TextStyle(fontSize: 10),
-        ):const SizedBox(),
+        !hasError
+            ? Text(
+                'probability:$probability',
+                style: const TextStyle(fontSize: 10),
+              )
+            : const SizedBox(),
       ]),
     );
   }
@@ -387,6 +398,8 @@ class OriginalImageDetailImage extends StatelessWidget {
           ),
         ),
         Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             SizedBox(
               height: 100,
@@ -401,7 +414,12 @@ class OriginalImageDetailImage extends StatelessWidget {
                 Text('Size in KB :${imageDetail.sizeInKB}'),
                 Text('Size in MB :${imageDetail.sizeInMB}'),
               ],
-            )
+            ),
+            IconButton(
+                onPressed: () {
+                  //TODO: download image available at this path imageDetail.imagePath
+                },
+                icon: const Icon(Icons.download))
           ],
         ),
       ],
@@ -409,31 +427,32 @@ class OriginalImageDetailImage extends StatelessWidget {
   }
 }
 
-
 class JuxtaposeBuilder extends StatelessWidget {
-   final TorchImageResponse response;
-   final ImageDetail imageDetail;
-   final String modelName;
+  final TorchImageResponse response;
+  final ImageDetail imageDetail;
+  final String modelName;
 
-  const JuxtaposeBuilder({Key key, this.response,this.imageDetail,this.modelName}) : super(key: key);
+  const JuxtaposeBuilder({Key key, this.response, this.imageDetail, this.modelName}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
 
-    if(response==null){
-      return  Center(
+    if (response == null) {
+      return Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Image enhancement - $modelName',
+                modelName,
                 style: const TextStyle(fontSize: 21),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
               const Text('Failed enhancing image'),
             ],
           ),
@@ -441,40 +460,43 @@ class JuxtaposeBuilder extends StatelessWidget {
       );
     }
 
-    if(response.image==null){
-      return  Center(
+    if (response.image == null) {
+      return Center(
         child: Padding(
           padding: const EdgeInsets.all(8.0),
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
               Text(
-                'Image enhancement - $modelName',
+                modelName,
                 style: const TextStyle(fontSize: 21),
                 textAlign: TextAlign.center,
               ),
-              const SizedBox(height: 20,),
+              const SizedBox(
+                height: 20,
+              ),
               const Text('Failed enhancing image'),
             ],
           ),
         ),
       );
     }
-
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-           Text(
-            'Image enhancement - $modelName',
+          Text(
+            modelName,
             style: const TextStyle(fontSize: 21),
-             textAlign: TextAlign.center,
+            textAlign: TextAlign.center,
           ),
-          const SizedBox(height: 5,),
+          const SizedBox(
+            height: 5,
+          ),
           SizedBox(
-            height: size.height*0.3,
+            height: size.height * 0.3,
             width: size.width,
             child: Juxtapose(
               backgroundColor: const Color(0xFF012747),
@@ -484,9 +506,31 @@ class JuxtaposeBuilder extends StatelessWidget {
           ),
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
             children: [
-             const Text('Original',style: TextStyle(fontSize: 16,fontWeight: FontWeight.bold),),
-              Text(modelName,style: const TextStyle(fontSize: 14,fontWeight: FontWeight.bold),),
+              const Text(
+                'Original',
+                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              GestureDetector(
+                onTap: () {
+                  print('download image available at this path @ response.image');
+                  // TODO: Download image response.image
+                },
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Text(
+                      modelName,
+                      style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                    const Text(
+                      'Download',
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ],
