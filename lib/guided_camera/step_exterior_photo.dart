@@ -81,7 +81,7 @@ class StepExteriorPhotos extends StatelessWidget {
                                 //     );
                                 //     for (e in list) {
                                 //       print('LIST E > $e');
-                                //       // Todo update
+                                //
                                 //       // model.updateExteriorImageClassList(index: e.imageIndex, imagesHolderClass: e);
                                 //     }
                                 //   } else if (checkResult == false) {
@@ -99,7 +99,7 @@ class StepExteriorPhotos extends StatelessWidget {
                                 //       final result = exteriorImageDefaultList.firstWhere((element) => element.imageIndex == e.imageIndex);
                                 //       model.carAd.exteriorImages[e.imageIndex].isUploading = false;
                                 //       model.carAd.exteriorImages[e.imageIndex].imagePath = null;
-                                //       // Todo update
+                                //
                                 //       // await model.updateExteriorPhotoFb(model.carAd, result);
                                 //       Fluttertoast.showToast(
                                 //           msg: 'Removed successfully', backgroundColor: Colors.green, textColor: Colors.white, timeInSecForIosWeb: 3);
@@ -123,7 +123,7 @@ class StepExteriorPhotos extends StatelessWidget {
                                 //         builder: (context) => StepGuidedCamera(list: model.carAd.exteriorImages, selectedImageIndex: e.imageIndex)),
                                 //   );
                                 //   for (e in list) {
-                                //     // Todo update
+                                //
                                 //     model.updateExteriorImageClassList(index: e.imageIndex, imagesHolderClass: e);
                                 //   }
                                 // }
