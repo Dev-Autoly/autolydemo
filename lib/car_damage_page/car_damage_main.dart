@@ -1,7 +1,3 @@
-
-
-
-
 import 'dart:io';
 
 import 'package:autolydemo/core/common_functions.dart';
@@ -25,11 +21,11 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
 
   @override
   Widget build(BuildContext context) {
-
+    // print(_response.partsDetails.image);
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('EnhanceImgTFM1'),
+        title: const Text('Car Damage Detection'),
       ),
       body: Column(
         children: [
@@ -54,8 +50,8 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                  ? Image.network(_response.partsDetails.image)
-                  : DisplayCenterText(msg: _response.state)),
+                      ? Image.network(replaceImageCloud(_response.partsDetails.image))
+                      : DisplayCenterText(msg: _response.state)),
 
           ///tool box
           SizedBox(

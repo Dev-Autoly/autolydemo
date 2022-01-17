@@ -1,6 +1,8 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:autolydemo/core/common_functions.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:juxtapose/juxtapose.dart';
@@ -180,9 +182,45 @@ class _DemoResultViewState extends State<DemoResultView> {
                 icon: const Icon(Icons.download),
                 onPressed: () async {
                   await requestPermission();
-                  final result = await ImageGallerySaver.saveImage(widget.result.carNetPostProcessResponse.imageResponse.image, name: "car_regoinition");
+                  final result =
+                      await ImageGallerySaver.saveImage(widget.result.carNetPostProcessResponse.imageResponse.image, name: "car_regoinition");
                   if (result['isSuccess']) {
+                    final snackBar = SnackBar(
+                      content: const Text('Saved successfully'),
+                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return const Center(
+      child: Text('Error recognizing image'),
+    );
+  }
 
+  Widget getBoxImage() {
+    if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
+      return Stack(
+        children: [
+          Center(child: Image.network(replaceImageCloud(widget.result.damageCarModel.partsDetails.image))),
+          Positioned(
+            right: 10,
+            bottom: 0,
+            child: Container(
+              color: Colors.white30,
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: () async {
+                  await requestPermission();
+                  final response = await Dio()
+                      .get(replaceImageCloud(widget.result.damageCarModel.partsDetails.image), options: Options(responseType: ResponseType.bytes));
+                  final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data), name: "damage_car");
+                  if (result['isSuccess']) {
                     final snackBar = SnackBar(
                       content: const Text('Saved successfully'),
                       action: SnackBarAction(label: 'Ok', onPressed: () => null),
@@ -333,6 +371,22 @@ class _DemoResultViewState extends State<DemoResultView> {
               modelName: 'Darkness remover Option 2',
               imageDetail: widget.result.imageDetail,
             ),
+            const DividerWidget(),
+
+            /// Damage detection
+            Column(children: [
+              const Text(
+                'Damage Car Detection',
+                style: TextStyle(fontSize: 21),
+              ),
+              Center(
+                child: SizedBox(
+                  height: size.height * 0.3,
+                  width: size.width * 0.9,
+                  child: getBoxImage(),
+                ),
+              ),
+            ]),
             const DividerWidget(),
           ],
         ),

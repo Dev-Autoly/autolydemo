@@ -14,8 +14,6 @@ import 'package:image/image.dart' as img;
 import 'package:palette_generator/palette_generator.dart';
 import 'dart:ui' as ui;
 
-
-
 class TorchImageResponse {
   final bool isSuccess;
   final Uint8List image;
@@ -46,8 +44,6 @@ class AngelApiResponse {
   }
 }
 
-
-
 class CarNetPostProcessResponse {
   final CarNetModel carNetModel;
   final TorchImageResponse imageResponse;
@@ -55,7 +51,7 @@ class CarNetPostProcessResponse {
   CarNetPostProcessResponse(this.carNetModel, this.imageResponse);
 }
 
-class ConsolidateResult{
+class ConsolidateResult {
   final CarNetPostProcessResponse carNetPostProcessResponse;
   final TorchImageResponse imageTorchApiResponse;
   final TorchImageResponse enhanceImgTFM1Response;
@@ -71,7 +67,9 @@ class ConsolidateResult{
       this.enhanceImgTFM1Response,
       this.darknessTFM2Response,
       this.removeDarknessM1Response,
-      this.imageDetail,this.angelApiResponse,this.damageCarModel});
+      this.imageDetail,
+      this.angelApiResponse,
+      this.damageCarModel});
 }
 
 class ImageDetail {
@@ -81,9 +79,7 @@ class ImageDetail {
   final String sizeInMB;
   final String imagePath;
 
-  ImageDetail({this.imageHeight, this.imageWidth, this.sizeInKB, this.sizeInMB,this.imagePath});
-
-
+  ImageDetail({this.imageHeight, this.imageWidth, this.sizeInKB, this.sizeInMB, this.imagePath});
 }
 
 enum imagePickerOption { camera, gallery }
@@ -121,11 +117,23 @@ String getAngleFromCarnet(CarNetModel model) {
   return '';
 }
 
+/// Replace image of cloud from private to public
+replaceImageCloud(String image) {
+  if (image.contains('https://storage.cloud.google.com/')) {
+    String _domain = 'https://storage.googleapis.com/';
+    String _url = image.split('https://storage.cloud.google.com/').last;
+    String finalUrl = _domain + _url;
+    return finalUrl;
+  } else {
+    return image;
+  }
+}
+
 Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angle}) async {
-   CarNetModel carNetModel = await uploadToCarNet(imagePath: imagePath);
+  CarNetModel carNetModel = await uploadToCarNet(imagePath: imagePath);
 
   String carNetAngle = getAngleFromCarnet(carNetModel);
-   debugPrint(carNetAngle);
+  debugPrint(carNetAngle);
 
   String carAngleApi = "https://validate-cars-positions-yozbt3xo3q-uc.a.run.app/validate_car_pos";
 
@@ -147,8 +155,6 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angle}) as
     final String filePath = '$dirPath/$timeStamp.png';
     File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
 
-
-
     var request = http.MultipartRequest('POST', Uri.parse(carAngleApi));
     var payload = {
       'position': carNetAngle,
@@ -163,7 +169,6 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angle}) as
 
     var streamedResponse = await request.send();
 
-
     if (streamedResponse.statusCode == 200) {
       debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
       final respBody = await streamedResponse.stream.bytesToString();
@@ -176,8 +181,7 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angle}) as
       final String predictedPosition = jsonResponse['predicted_position'] ?? '';
       final bool state = jsonResponse['state'] ?? false;
 
-      return AngelApiResponse(
-          state: state, msg: msg, image: image, fillingPercentage: fillingPercentage, predictedPosition: predictedPosition);
+      return AngelApiResponse(state: state, msg: msg, image: image, fillingPercentage: fillingPercentage, predictedPosition: predictedPosition);
     }
 
     debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
@@ -203,7 +207,8 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
 
   request.headers.addAll(headers);
 
-  request.files.add(http.MultipartFile('picture', File(imagePath).readAsBytes().asStream(), File(imagePath).lengthSync(), filename: imagePath.split("/").last));
+  request.files.add(
+      http.MultipartFile('picture', File(imagePath).readAsBytes().asStream(), File(imagePath).lengthSync(), filename: imagePath.split("/").last));
 
   var streamedResponse = await request.send();
   // if (streamedResponse.statusCode == 200) {
@@ -216,11 +221,10 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
 }
 
 /// function that get detail of image including size
-Future<ImageDetail>getImageDetail({@required String imagePath})async{
-
+Future<ImageDetail> getImageDetail({@required String imagePath}) async {
   await Future.delayed(const Duration(seconds: 1));
   File originalFile = File(imagePath);
-  final bytes  =  originalFile.readAsBytesSync().lengthInBytes;
+  final bytes = originalFile.readAsBytesSync().lengthInBytes;
   final kb = bytes / 1024;
   final mb = kb / 1024;
   img.Image image = img.decodeImage(originalFile.readAsBytesSync());
@@ -232,29 +236,25 @@ Future<ImageDetail>getImageDetail({@required String imagePath})async{
     imageWidth: oImageW,
     sizeInKB: kb.toStringAsFixed(2).toString(),
     sizeInMB: mb.toStringAsFixed(2).toString(),
-
   );
-
 }
 
 /// function that draw rect on image
-Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async{
+Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async {
   File originalFile = File(imagePath);
   img.Image image = img.decodeImage(originalFile.readAsBytesSync());
 
-  if(!model.isSuccess){
-
+  if (!model.isSuccess) {
     return img.encodePng(image);
   }
 
   int oImageH = image.height;
   int oImageW = image.width;
 
-
-  int x1 = oImageW-(oImageW*model.detections[0].box.brX).toInt();
-  int y1 = (oImageH*model.detections[0].box.brY).toInt();
-  int x2 = oImageW-(oImageW*(model.detections[0].box.tlX)).toInt();
-  int y2 = (oImageH*(model.detections[0].box.tlY)).toInt();
+  int x1 = oImageW - (oImageW * model.detections[0].box.brX).toInt();
+  int y1 = (oImageH * model.detections[0].box.brY).toInt();
+  int x2 = oImageW - (oImageW * (model.detections[0].box.tlX)).toInt();
+  int y2 = (oImageH * (model.detections[0].box.tlY)).toInt();
 
   img.Image rectImage = img.drawRect(
     image,
@@ -277,9 +277,10 @@ Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async{
   return img.encodePng(rectImage);
 }
 
-
 /// api for Car Detection
-Future<String> detectCarApi({String imagePath,}) async {
+Future<String> detectCarApi({
+  String imagePath,
+}) async {
   String carAngleApi = "https://us-central1-autoly-inc.cloudfunctions.net/detect_car_api";
   var headers = {
     'content-type': 'application/octet-stream',
@@ -352,7 +353,8 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -399,7 +401,8 @@ Future<TorchImageResponse> segmentCarApi({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -446,7 +449,8 @@ Future<TorchImageResponse> enhanceImgTFM1({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -493,7 +497,8 @@ Future<TorchImageResponse> darknessTFM2({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -540,7 +545,8 @@ Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -587,68 +593,59 @@ Future<DamageCarModel> damagesDetectionApi({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
     debugPrint('added header');
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
     debugPrint('added file');
     var streamedResponse = await request.send();
 
     var response = await http.Response.fromStream(streamedResponse);
 
-
     debugPrint(response.statusCode.toString());
     debugPrint(response.body);
-    if(response.statusCode==200){
-      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+    if (response.statusCode == 200) {
+      Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       return DamageCarModel.fromJson(jsonResponse);
     }
     return DamageCarModel(
       state: 'State code 500',
-      isSuccess:  false,
+      isSuccess: false,
     );
-
-
-
   } catch (e) {
     debugPrint('Error:${e.toString()}');
     return DamageCarModel(
       state: 'State code 500',
-      isSuccess:  false,
+      isSuccess: false,
     );
   }
 }
 
 /// api for processing carnet function after guided camera
-Future<CarNetPostProcessResponse> carNetProcessing({String imagePath})async{
+Future<CarNetPostProcessResponse> carNetProcessing({String imagePath}) async {
   CarNetModel _model;
-  try{
-     _model = await uploadToCarNet(imagePath: imagePath);
-  }catch(e){
-    return CarNetPostProcessResponse(null, TorchImageResponse(
-      msg: 'Could not process Image',
-      isSuccess: false,
-      image: null,
-    ),
+  try {
+    _model = await uploadToCarNet(imagePath: imagePath);
+  } catch (e) {
+    return CarNetPostProcessResponse(
+      null,
+      TorchImageResponse(
+        msg: 'Could not process Image',
+        isSuccess: false,
+        image: null,
+      ),
     );
   }
 
-
-
-  try{
-    Uint8List imageFile = await imageWithRect(_model,imagePath);
-    return CarNetPostProcessResponse(_model, TorchImageResponse(
-      msg: 'ok',
-      isSuccess: true,
-      image: imageFile
-    ));
-
-  }catch(e){
-    return CarNetPostProcessResponse(null, TorchImageResponse(
-      msg: e.toString(),
-      isSuccess: false,
-      image: null,
-    ),);
+  try {
+    Uint8List imageFile = await imageWithRect(_model, imagePath);
+    return CarNetPostProcessResponse(_model, TorchImageResponse(msg: 'ok', isSuccess: true, image: imageFile));
+  } catch (e) {
+    return CarNetPostProcessResponse(
+      null,
+      TorchImageResponse(
+        msg: e.toString(),
+        isSuccess: false,
+        image: null,
+      ),
+    );
   }
-
-
-
-
 }

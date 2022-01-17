@@ -197,7 +197,6 @@ class MyHomePage extends StatelessWidget {
                   builder: (context) => const CarDamageApiPage(),
                 ),
               );
-             // TODO:Mohammad please navigate to damage api page from here
 
             },
           ),
