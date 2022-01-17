@@ -1,6 +1,6 @@
-# autolydemo
+# guided_camera_demo
 
-Autoly key features demo
+A new Flutter project.
 
 ## Getting Started
 
