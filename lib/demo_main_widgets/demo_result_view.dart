@@ -184,6 +184,7 @@ class _DemoResultViewState extends State<DemoResultView> {
                   await requestPermission();
                   final result = await ImageGallerySaver.saveImage(widget.result.carNetPostProcessResponse.imageResponse.image, name: "car_regoinition");
                   if (result['isSuccess']) {
+
                     final snackBar = SnackBar(
                       content: const Text('Saved successfully'),
                       action: SnackBarAction(label: 'Ok', onPressed: () => null),
@@ -397,7 +398,7 @@ requestPermission() async {
     Permission.storage,
   ].request();
   final info = statuses[Permission.storage].toString();
-  print(info);
+  debugPrint(info);
 }
 
 class OriginalImageDetailImage extends StatelessWidget {

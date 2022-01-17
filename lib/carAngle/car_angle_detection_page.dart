@@ -4,7 +4,6 @@ import 'dart:io';
 
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/core/scan_animation.dart';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 class CarAngleDetectionPage extends StatefulWidget {
