@@ -25,7 +25,7 @@ class StepExteriorPhotos extends StatelessWidget {
     return Scaffold(
       backgroundColor: azure,
       appBar: AppBar(
-        title: const Text('Demo Guided Camera'),
+        title: const Text('Guided Camera'),
       ),
       body: ViewModelBuilder<BasicAdViewModel>.reactive(
         viewModelBuilder: () => BasicAdViewModel(),

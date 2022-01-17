@@ -37,7 +37,7 @@ class _CarNetHomePageState extends State<CarNetHomePage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Car Recognizer'),
+        title: const Text('Make Model Recognizer'),
       ),
       body: Column(
         children: [

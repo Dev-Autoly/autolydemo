@@ -385,7 +385,7 @@ class _DemoResultViewState extends State<DemoResultView> {
             const DividerWidget(),
 
             const Text(
-              'Car Angle Recognition',
+              'Image validation with frame',
               style: TextStyle(fontSize: 21),
             ),
             getAngleBoxImage(),

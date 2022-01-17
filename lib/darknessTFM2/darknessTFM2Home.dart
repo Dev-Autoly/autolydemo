@@ -23,7 +23,7 @@ class _DarknessTFM2PageState extends State<DarknessTFM2Page> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('DarknessTFM2 Api'),
+        title: const Text('Darkness Removal Option 1'),
       ),
       body: Column(
         children: [

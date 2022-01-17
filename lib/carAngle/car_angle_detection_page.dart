@@ -98,7 +98,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Car Angle Detection'),
+        title: const Text('Car Angle Validation'),
       ),
       body: Column(
         children: [

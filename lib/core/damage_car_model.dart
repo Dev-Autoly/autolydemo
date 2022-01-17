@@ -1,26 +1,32 @@
 import 'package:flutter/foundation.dart';
 
 class DamageCarModel {
-  PartsDetails partsDetails;
+  DamageDetails damageDetails;
+  List<String> damageParts;
+  DamageDetails partsDetails;
   Severity severity;
-  String state;
+  bool state;
   bool isSuccess;
+  String msg;
 
-  DamageCarModel({this.partsDetails, this.severity, this.state,this.isSuccess});
+  DamageCarModel({this.damageDetails, this.damageParts, this.partsDetails, this.severity, this.state,this.isSuccess,this.msg});
 
-  DamageCarModel.fromJson(Map<String, dynamic> json) {
-    try {
-      partsDetails = json['parts_details'] != null ? PartsDetails.fromJson(json['parts_details']) : null;
-      severity = json['severity'] != null ? Severity.fromJson(json['severity']) : null;
-      state = json['state'];
-      isSuccess = true;
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+  DamageCarModel.fromJson(Map<String, dynamic> json, bool isSuccess, String msg) {
+    damageDetails = json['damage_details'] != null ? DamageDetails.fromJson(json['damage_details']) : null;
+    damageParts = json['damage_parts'].cast<String>();
+    partsDetails = json['parts_details'] != null ? DamageDetails.fromJson(json['parts_details']) : null;
+    severity = json['severity'] != null ? Severity.fromJson(json['severity']) : null;
+    state = json['state'];
+    isSuccess = isSuccess;
+    msg = msg;
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
+    if (damageDetails != null) {
+      data['damage_details'] = damageDetails.toJson();
+    }
+    data['damage_parts'] = damageParts;
     if (partsDetails != null) {
       data['parts_details'] = partsDetails.toJson();
     }
@@ -32,23 +38,17 @@ class DamageCarModel {
   }
 }
 
-class PartsDetails {
+class DamageDetails {
   String image;
   List<Parts> parts;
 
-  PartsDetails({this.image, this.parts});
+  DamageDetails({this.image, this.parts});
 
-  PartsDetails.fromJson(Map<String, dynamic> json) {
-    try {
-      image = json['image'];
-      if (json['parts'] != null) {
-        parts = <Parts>[];
-        json['parts'].forEach((v) {
-          parts.add(Parts.fromJson(v));
-        });
-      }
-    } catch (e) {
-      debugPrint(e.toString());
+  DamageDetails.fromJson(Map<String, dynamic> json) {
+    image = json['image'];
+    if (json['parts'] != null) {
+      parts = <Parts>[];
+      json['parts'].forEach((v) { parts.add(Parts.fromJson(v)); });
     }
   }
 
@@ -63,47 +63,45 @@ class PartsDetails {
 }
 
 class Parts {
-  List<num> box;
-  String partClass;
-  num score;
+  List<double> box;
+  String partType;
+  double score;
 
-  Parts({this.box, this.partClass, this.score});
+  Parts({this.box, this.partType, this.score});
 
   Parts.fromJson(Map<String, dynamic> json) {
-    try {
-      box = json['box'].cast<double>();
-      partClass = json['class'];
-      score = json['score'];
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+  box = json['box'].cast<double>();
+  partType = json['class'];
+  score = json['score'];
   }
 
   Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['box'] = box;
-    data['class'] = partClass;
-    data['score'] = score;
-    return data;
+  final Map<String, dynamic> data = <String, dynamic>{};
+  data['box'] = box;
+  data['class'] = partType;
+  data['score'] = score;
+  return data;
   }
 }
 
 class Severity {
-  num score;
+  double score;
+  String type;
 
-  Severity({this.score});
+  Severity({this.score, this.type});
 
   Severity.fromJson(Map<String, dynamic> json) {
-    try {
-      score = json['score']??0.0;
-    } catch (e) {
-      debugPrint(e.toString());
-    }
+    score = json['score'];
+    type = json['type'];
   }
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
     data['score'] = score;
+    data['type'] = type;
     return data;
   }
 }
+
+
+

@@ -656,16 +656,17 @@ Future<DamageCarModel> damagesDetectionApi({String imagePath}) async {
     debugPrint(response.body);
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
-      return DamageCarModel.fromJson(jsonResponse);
+      print(jsonResponse);
+      return DamageCarModel.fromJson(jsonResponse,true,"response 200");
     }
     return DamageCarModel(
-      state: 'State code 500',
+      msg: 'State code 500',
       isSuccess: false,
     );
   } catch (e) {
     debugPrint('Error:${e.toString()}');
     return DamageCarModel(
-      state: 'State code 500',
+      msg: 'State code 500',
       isSuccess: false,
     );
   }

@@ -23,7 +23,7 @@ class _RemoveDarknessM1State extends State<RemoveDarknessM1> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('RemoveDarknessM1 Api'),
+        title: const Text('Darkness Removal Option 2'),
       ),
       body: Column(
         children: [

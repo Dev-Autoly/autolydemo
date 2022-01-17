@@ -25,7 +25,7 @@ class _EnhanceImgTFM1PageState extends State<EnhanceImgTFM1Page> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('EnhanceImgTFM1'),
+        title: const Text('Image Enhancement Option 2'),
       ),
       body: Column(
         children: [

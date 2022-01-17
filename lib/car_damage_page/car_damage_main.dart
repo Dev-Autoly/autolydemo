@@ -24,7 +24,7 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Car Damage Detection'),
+        title: const Text('Car Damage Prediction'),
       ),
       body: Column(
         children: [
@@ -75,10 +75,20 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                                   ],
                                 ),
                               ),
+                              Positioned(
+                                right: 10,
+                                bottom: 10,
+                                child: IconButton(
+                                  onPressed: (){
+                                    downloadUrlImage(_response.partsDetails.image, context);
+                                  },
+                                  icon: const Icon(Icons.download),
+                                ),
+                              )
                             ],
                           ),
                         )
-                      : DisplayCenterText(msg: _response.state)),
+                      : DisplayCenterText(msg: _response.msg)),
 
           ///tool box
           SizedBox(

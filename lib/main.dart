@@ -66,7 +66,7 @@ class MyHomePage extends StatelessWidget {
         children: [
           ListItemWidget(
             title: 'Guided Camera',
-            description: 'Guided camera steps',
+            description: 'Guided camera',
             onTap: () async {
               Navigator.push(
                 context,
@@ -77,7 +77,7 @@ class MyHomePage extends StatelessWidget {
             },
           ),
           ListItemWidget(
-            title: 'Car  Detection',
+            title: 'Car Detection',
             description: 'Detect if car is available in the image',
             onTap: () async {
               Navigator.push(
@@ -103,7 +103,7 @@ class MyHomePage extends StatelessWidget {
           ),
 
           ListItemWidget(
-            title: 'Car Angle Detection',
+            title: 'Car Angle Validation',
             description: 'Detect car angle',
             onTap: () async {
               Navigator.push(
@@ -117,7 +117,7 @@ class MyHomePage extends StatelessWidget {
 
           ListItemWidget(
             title: 'Image Enhancement Option 1',
-            description: 'Api enhances image quality',
+            description: 'Image Enhancement Option 1',
             onTap: () async {
               Navigator.push(
                 context,
