@@ -1,6 +1,6 @@
 import 'dart:typed_data';
 
-import 'package:dio/dio.dart';
+import 'package:autolydemo/core/damage_car_model.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -24,7 +24,31 @@ class TorchImageResponse {
   TorchImageResponse({this.isSuccess, this.image, this.msg});
 }
 
-class CarNetPostProcessResponse{
+// {message: the car is not in the right position., predicted_position: left, state: false}
+//  {filling_percentage: 65.33, image: https://storage.cloud.google.com/car-damage-images-autoly/tmpscozhrmo0e22d646-774d-11ec-b81a-4d7e98de7515.jpg, message: right position, but the car should be close a little bit., predicted_position: front right, state: false}
+class AngelApiResponse {
+  final num fillingPercentage;
+  final String image;
+  final String msg;
+  final String predictedPosition;
+  final bool state;
+
+  AngelApiResponse({this.fillingPercentage, this.image, this.msg, this.predictedPosition, this.state});
+
+  Map<String, dynamic> toJson() {
+    final Map<String, dynamic> data = <String, dynamic>{};
+    data['fillingPercentage'] = fillingPercentage;
+    data['image'] = image;
+    data['msg'] = msg;
+    data['predictedPosition'] = predictedPosition;
+    data['state'] = state;
+    return data;
+  }
+}
+
+
+
+class CarNetPostProcessResponse {
   final CarNetModel carNetModel;
   final TorchImageResponse imageResponse;
 
@@ -38,6 +62,8 @@ class ConsolidateResult{
   final TorchImageResponse darknessTFM2Response;
   final TorchImageResponse removeDarknessM1Response;
   final ImageDetail imageDetail;
+  final AngelApiResponse angelApiResponse;
+  final DamageCarModel damageCarModel;
 
   ConsolidateResult(
       {this.carNetPostProcessResponse,
@@ -45,7 +71,7 @@ class ConsolidateResult{
       this.enhanceImgTFM1Response,
       this.darknessTFM2Response,
       this.removeDarknessM1Response,
-      this.imageDetail});
+      this.imageDetail,this.angelApiResponse,this.damageCarModel});
 }
 
 class ImageDetail {
@@ -82,8 +108,27 @@ Future<String> pickImage({@required imagePickerOption option}) async {
 }
 
 /// api for Car Angel detection
-Future<String> uploadFileForAngle({String imagePath, String angle}) async {
+///
+String getAngleFromCarnet(CarNetModel model) {
+  if (model.detections.isNotEmpty) {
+    if (model.detections[0].angle.isNotEmpty) {
+      if (model.detections[0].angle[0].name != null) {
+        return model.detections[0].angle[0].name.replaceAll('-', ' ');
+      }
+    }
+  }
+
+  return '';
+}
+
+Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angle}) async {
+   CarNetModel carNetModel = await uploadToCarNet(imagePath: imagePath);
+
+  String carNetAngle = getAngleFromCarnet(carNetModel);
+   debugPrint(carNetAngle);
+
   String carAngleApi = "https://validate-cars-positions-yozbt3xo3q-uc.a.run.app/validate_car_pos";
+
   var headers = {
     'content-type': 'application/octet-stream',
     'accept': 'application/json',
@@ -105,7 +150,12 @@ Future<String> uploadFileForAngle({String imagePath, String angle}) async {
 
 
     var request = http.MultipartRequest('POST', Uri.parse(carAngleApi));
-    var payload = {'position': angle, 'orginal_width': oImageW.toString(), 'orginal_hight': oImageH.toString(),'carnet_pos':angle};
+    var payload = {
+      'position': carNetAngle,
+      'orginal_width': oImageW.toString(),
+      'orginal_hight': oImageH.toString(),
+      'carnet_pos': carNetAngle,
+    };
     request.headers.addAll(headers);
     request.fields["payload"] = jsonEncode(payload);
 
@@ -113,18 +163,30 @@ Future<String> uploadFileForAngle({String imagePath, String angle}) async {
 
     var streamedResponse = await request.send();
 
+
     if (streamedResponse.statusCode == 200) {
+      debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
       final respBody = await streamedResponse.stream.bytesToString();
-      var jsonResponse = json.decode(respBody.toString());
+      Map<String, dynamic> jsonResponse = json.decode(respBody.toString());
       debugPrint('final : $jsonResponse');
-      return jsonResponse.toString();
+
+      final num fillingPercentage = jsonResponse['filling_percentage'] ?? 0.0;
+      final String image = jsonResponse['image'] ?? '';
+      final String msg = jsonResponse['message'] ?? '';
+      final String predictedPosition = jsonResponse['predicted_position'] ?? '';
+      final bool state = jsonResponse['state'] ?? false;
+
+      return AngelApiResponse(
+          state: state, msg: msg, image: image, fillingPercentage: fillingPercentage, predictedPosition: predictedPosition);
     }
+
+    debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
   } catch (e) {
-    print('Error:${e.toString()}');
-    return e.toString();
+    debugPrint('Error:${e.toString()}');
+    return AngelApiResponse(state: false, msg: e.toString());
   }
 
-  return 'unknown error';
+  return AngelApiResponse(state: false, msg: "unknown error");
 }
 
 /// api for Make Model recognize
@@ -150,9 +212,7 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
   // var response = http.Response.fromStream(streamedResponse);
   final respBody = await streamedResponse.stream.bytesToString();
   var jsonResponse = json.decode(respBody.toString());
-  debugPrint(jsonResponse.toString());
   return CarNetModel.fromJson(jsonResponse);
-  return null;
 }
 
 /// function that get detail of image including size
@@ -500,7 +560,7 @@ Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
 }
 
 /// api to detect damages
-Future<void> damagesDetectionApi({String imagePath}) async {
+Future<DamageCarModel> damagesDetectionApi({String imagePath}) async {
   String imageTorchApi = "https://car-damage-detection-yozbt3xo3q-uc.a.run.app/detectDamages";
   var headers = {
     'content-type': 'application/octet-stream',
@@ -526,18 +586,33 @@ Future<void> damagesDetectionApi({String imagePath}) async {
     request.headers.addAll(headers);
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
-
+    debugPrint('added header');
     request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
-
+    debugPrint('added file');
     var streamedResponse = await request.send();
 
     var response = await http.Response.fromStream(streamedResponse);
-    print(response.statusCode);
-    print(response.body);
+
+
+    debugPrint(response.statusCode.toString());
+    debugPrint(response.body);
+    if(response.statusCode==200){
+      Map<String,dynamic> jsonResponse = jsonDecode(response.body);
+      return DamageCarModel.fromJson(jsonResponse);
+    }
+    return DamageCarModel(
+      state: 'State code 500',
+      isSuccess:  false,
+    );
+
+
 
   } catch (e) {
-    print('Error:${e.toString()}');
-
+    debugPrint('Error:${e.toString()}');
+    return DamageCarModel(
+      state: 'State code 500',
+      isSuccess:  false,
+    );
   }
 }
 

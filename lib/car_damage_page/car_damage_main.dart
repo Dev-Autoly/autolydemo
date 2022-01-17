@@ -1,48 +1,37 @@
 
 
+
+
 import 'dart:io';
 
 import 'package:autolydemo/core/common_functions.dart';
+import 'package:autolydemo/core/damage_car_model.dart';
 import 'package:autolydemo/core/scan_animation.dart';
+import 'package:autolydemo/core/text_display_image.dart';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-class CarAngleDetectionPage extends StatefulWidget {
-  const CarAngleDetectionPage({Key key}) : super(key: key);
+class CarDamageApiPage extends StatefulWidget {
+  const CarDamageApiPage({Key key}) : super(key: key);
 
   @override
-  State<CarAngleDetectionPage> createState() => _CarAngleDetectionPageState();
+  State<CarDamageApiPage> createState() => _CarDamageApiPageState();
 }
 
-class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
-  String _selectedValue = "front";
+class _CarDamageApiPageState extends State<CarDamageApiPage> {
   String _selectedImagePath;
   bool isProcessing = false;
-  String _model;
-
-  List<DropdownMenuItem<String>> get dropdownItems{
-    List<DropdownMenuItem<String>> menuItems = [
-      const DropdownMenuItem(child: Text("Front"),value: "front"),
-      const DropdownMenuItem(child: Text("Front Right"),value: "front right"),
-      const DropdownMenuItem(child: Text("Front Left"),value: "front left"),
-      const DropdownMenuItem(child: Text("Rear"),value: "rear"),
-      const DropdownMenuItem(child: Text("Rear Right"),value: "rear right"),
-      const DropdownMenuItem(child: Text("Rear Left"),value: "rear left"),
-      const DropdownMenuItem(child: Text("Left"),value: "left"),
-      const DropdownMenuItem(child: Text("Right"),value: "right"),
-    ];
-    return menuItems;
-  }
-
+  DamageCarModel _response;
 
   @override
   Widget build(BuildContext context) {
+
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Car Angle Detection'),
+        title: const Text('EnhanceImgTFM1'),
       ),
-      body:
-      Column(
+      body: Column(
         children: [
           SizedBox(
             height: size.height * 0.4,
@@ -53,7 +42,6 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
                   child: _selectedImagePath != null ? Image.file(File(_selectedImagePath)) : const Text('Select Image'),
                 ),
                 isProcessing ? const ScanAnimationWidget() : const SizedBox(),
-
               ],
             ),
           ),
@@ -62,21 +50,14 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
             width: size.width,
             color: Colors.grey,
           ),
-          DropdownButton(
-              value: _selectedValue,
-              items: dropdownItems, onChanged: (value){
-            _selectedValue = value;
-            setState(() {
+          Expanded(
+              child: _response == null
+                  ? const DisplayCenterText(msg: 'Select and upload image')
+                  : _response.isSuccess
+                  ? Image.network(_response.partsDetails.image)
+                  : DisplayCenterText(msg: _response.state)),
 
-            });
-          }),
-          Expanded(flex: 1, child: SingleChildScrollView(
-            child: _model!=null?Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(_model),
-            ):const SizedBox(),
-          )
-          ),
+          ///tool box
           SizedBox(
             height: 50,
             width: size.width,
@@ -84,21 +65,15 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  onPressed: () async{
-                    if(_selectedImagePath!=null){
+                  onPressed: () async {
+                    if (_selectedImagePath != null) {
                       isProcessing = true;
-                      _model =null;
-                      setState(() {
-
-                      });
-                      AngelApiResponse response = await uploadFileForAngle( imagePath: _selectedImagePath,angle: _selectedValue);
-                      _model = response.toJson().toString();
+                      _response = null;
+                      setState(() {});
+                      _response = await damagesDetectionApi(imagePath: _selectedImagePath);
                       isProcessing = false;
-                      setState(() {
-
-                      });
+                      setState(() {});
                     }
-
                   },
                   icon: const Icon(Icons.cloud_upload),
                 ),

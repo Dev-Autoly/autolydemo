@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:autolydemo/carAngle/car_angle_detection_page.dart';
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/guided_camera/imageHolderClass.dart';
 import 'package:flutter/material.dart';
@@ -19,6 +20,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
   TorchImageResponse _enhanceImgTFM1Data;
   TorchImageResponse _removeDarknessM1Data;
   TorchImageResponse _darknessTFM2Data;
+  // AngelApiResponse _angelApiResponse;
   ImageDetail _imageSizeDetail;
   bool isAllApiSuccessfull = false;
 
@@ -28,6 +30,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
   Future<TorchImageResponse> _removeDarknessM1;
   Future<TorchImageResponse> _darknessTFM2;
   Future<ImageDetail> _imageDetail;
+  // Future<AngelApiResponse> _uploadFileForAngle;
 
   Future<CarNetPostProcessResponse> _carNetModel() async {
     return carNetProcessing(imagePath: widget.selectedImage.imagePath);
@@ -52,6 +55,10 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
   Future<ImageDetail> _getImageDetail() async {
     return getImageDetail(imagePath: widget.selectedImage.imagePath);
   }
+
+//   Future<AngelApiResponse> _getAngleResponse() async{
+//     return uploadFileForAngle(imagePath:widget.selectedImage.imagePath );
+// }
 
   bool checkApiStatus(TorchImageResponse response) {
     if (response != null) {
@@ -80,10 +87,12 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
   void initState() {
     _imageDetail = _getImageDetail();
     _carMakeModel = _carNetModel();
+    // _uploadFileForAngle = _getAngleResponse();
     _imageTorchApi = _torchM2Api();
     _enhanceImgTFM1 = _tfm1Api();
     _removeDarknessM1 = _darknessM1();
     _darknessTFM2 = _tfm2Api();
+
     super.initState();
   }
 
@@ -242,6 +251,44 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 );
               },
             ),
+
+            // FutureBuilder<AngelApiResponse>(
+            //   future: _uploadFileForAngle,
+            //   builder: (context, snapshot) {
+            //     String msg = 'validating car position';
+            //     if (snapshot.hasError) {
+            //       return ProcessTextWidget(
+            //         msg: msg,
+            //         isDone: true,
+            //         hasError: true,
+            //       );
+            //     }
+            //
+            //     if (snapshot.connectionState == ConnectionState.done) {
+            //       if (snapshot.hasData) {
+            //         _angelApiResponse = snapshot.data;
+            //         return ProcessTextWidget(
+            //           msg: msg,
+            //           isDone: true,
+            //           hasError: false,
+            //         );
+            //       } else {
+            //         return ProcessTextWidget(
+            //           msg: msg,
+            //           isDone: true,
+            //           hasError: true,
+            //         );
+            //       }
+            //     }
+            //     return ProcessTextWidget(
+            //       msg: msg,
+            //       isDone: false,
+            //       hasError: false,
+            //     );
+            //   },
+            // ),
+
+
             FutureBuilder<TorchImageResponse>(
               future: _imageTorchApi,
               builder: (context, snapshot) {
@@ -390,25 +437,26 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
               },
             ),
             ElevatedButton(
-              onPressed:  () async {
-                      ConsolidateResult _resultAll = ConsolidateResult(
-                        carNetPostProcessResponse: _carNetData,
-                        imageTorchApiResponse: _imageTorchApiData,
-                        enhanceImgTFM1Response: _enhanceImgTFM1Data,
-                        darknessTFM2Response: _darknessTFM2Data,
-                        removeDarknessM1Response: _removeDarknessM1Data,
-                        imageDetail: _imageSizeDetail,
-                      );
-                      Navigator.pushReplacement(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => DemoResultView(
-                            result: _resultAll,
-                          ),
-                        ),
-                      );
-                    },
-
+              onPressed: () async {
+                ConsolidateResult _resultAll = ConsolidateResult(
+                    carNetPostProcessResponse: _carNetData,
+                    imageTorchApiResponse: _imageTorchApiData,
+                    enhanceImgTFM1Response: _enhanceImgTFM1Data,
+                    darknessTFM2Response: _darknessTFM2Data,
+                    removeDarknessM1Response: _removeDarknessM1Data,
+                    imageDetail: _imageSizeDetail,
+                    // angelApiResponse: _angelApiResponse
+                    // damageCarModel: TODO
+                );
+                Navigator.pushReplacement(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => DemoResultView(
+                      result: _resultAll,
+                    ),
+                  ),
+                );
+              },
               child: SizedBox(
                 height: 50,
                 width: size.width * 0.5,

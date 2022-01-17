@@ -1,11 +1,9 @@
 import 'dart:io';
 
 import 'package:autolydemo/core/common_functions.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:juxtapose/juxtapose.dart';
-import 'package:path_provider/path_provider.dart';
 import 'package:permission_handler/permission_handler.dart';
 
 class DemoResultView extends StatefulWidget {
@@ -300,6 +298,10 @@ class _DemoResultViewState extends State<DemoResultView> {
                   ),
 
             const DividerWidget(),
+
+            // SizedBox(
+            //   child: Image.network(widget.result.angelApiResponse.image),
+            // ),
 
             /// Image enhancement - Option 1
             JuxtaposeBuilder(
