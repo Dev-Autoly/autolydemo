@@ -51,7 +51,7 @@ class _EnhanceImgTFM1PageState extends State<EnhanceImgTFM1Page> {
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
                   ? Container(
-                child: _response.image,
+                child: Image.memory(_response.image),
               )
                   : DisplayCenterText(msg: _response.msg)),
 

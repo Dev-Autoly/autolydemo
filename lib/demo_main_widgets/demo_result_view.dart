@@ -160,7 +160,7 @@ class _DemoResultViewState extends State<DemoResultView> {
     if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
       return Stack(
         children: [
-          Center(child: widget.result.carNetPostProcessResponse.imageResponse.image),
+          Center(child: Image.memory(widget.result.carNetPostProcessResponse.imageResponse.image)),
           Positioned(
             left: 20,
             bottom: 10,
@@ -501,7 +501,7 @@ class JuxtaposeBuilder extends StatelessWidget {
             child: Juxtapose(
               backgroundColor: const Color(0xFF012747),
               foregroundWidget: Image.file(File(imageDetail.imagePath)),
-              backgroundWidget: response.image,
+              backgroundWidget: Image.memory(response.image),
             ),
           ),
           Row(
