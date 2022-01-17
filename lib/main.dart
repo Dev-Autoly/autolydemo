@@ -1,18 +1,13 @@
 
-import 'package:autolydemo/core/common_functions.dart';
-import 'package:autolydemo/guided_camera/imageHolderClass.dart';
 import 'package:autolydemo/removeDarknessM1/removeDarknessM1Home.dart';
-import 'package:autolydemo/segment_car_api/segment_car_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:lottie/lottie.dart';
 import 'package:provider/provider.dart';
 
 import 'carAngle/car_angle_detection_page.dart';
 import 'carDetection/car_detection_page.dart';
 import 'carNet/carnet_main_widget.dart';
 import 'darknessTFM2/darknessTFM2Home.dart';
-import 'demo_main_widgets/demo_inprogress_widget.dart';
 import 'enhanceImgTFM1Widgets/enhanceingImageTFM1Widget.dart';
 import 'guided_camera/basic_view_model.dart';
 import 'guided_camera/step_exterior_photo.dart';
