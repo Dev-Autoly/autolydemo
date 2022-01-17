@@ -18,7 +18,7 @@ import 'dart:ui' as ui;
 
 class TorchImageResponse {
   final bool isSuccess;
-  final Image image;
+  final Uint8List image;
   final String msg;
 
   TorchImageResponse({this.isSuccess, this.image, this.msg});
@@ -62,6 +62,7 @@ class ImageDetail {
 
 enum imagePickerOption { camera, gallery }
 
+/// function that pick image from gallery or camera
 Future<String> pickImage({@required imagePickerOption option}) async {
   final ImagePicker _picker = ImagePicker();
   XFile image;
@@ -80,45 +81,7 @@ Future<String> pickImage({@required imagePickerOption option}) async {
   return null;
 }
 
-Future<File> uploadImageForAngle({@required imagePath}) async {
-  File originalFile = File(imagePath);
-  img.Image image = img.decodeImage(originalFile.readAsBytesSync());
-
-  int oImageH = image.height;
-  int oImageW = image.width;
-  img.Image thumbnail = img.copyResize(image, width: 342);
-
-  int timeStamp = DateTime.now().millisecondsSinceEpoch;
-
-  final Directory extDir = await getApplicationDocumentsDirectory();
-  String dirPath = extDir.path;
-  final String filePath = '$dirPath/$timeStamp.png';
-  File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
-
-  var dio = Dio();
-  String carAngleApi = "https://validate-cars-positions-yozbt3xo3q-uc.a.run.app/validate_car_pos";
-  var payload = {'position': 'front right', 'orginal_width': oImageW, 'orginal_hight': oImageH};
-  var headers = {
-    'content-type': 'application/octet-stream',
-    'accept': 'application/json',
-  };
-
-  dio.options.headers.addAll(headers);
-  var formData = FormData.fromMap({
-    'payload': {'position': 'front right', 'orginal_width': oImageW, 'orginal_hight': oImageH},
-    'image': await MultipartFile.fromFile(resizeFie.path, filename: 'image.png'),
-  });
-
-  try {
-    var response = await dio.post(carAngleApi, data: formData);
-    print(response.statusCode);
-  } catch (e) {
-    print('error: ${e.toString()}');
-  }
-
-  return resizeFie;
-}
-
+/// api for Car Angel detection
 Future<String> uploadFileForAngle({String imagePath, String angle}) async {
   String carAngleApi = "https://validate-cars-positions-yozbt3xo3q-uc.a.run.app/validate_car_pos";
   var headers = {
@@ -139,17 +102,17 @@ Future<String> uploadFileForAngle({String imagePath, String angle}) async {
     final String filePath = '$dirPath/$timeStamp.png';
     File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
 
-    print(resizeFie.path);
+
 
     var request = http.MultipartRequest('POST', Uri.parse(carAngleApi));
-    var payload = {'position': angle, 'orginal_width': oImageW.toString(), 'orginal_hight': oImageH.toString()};
+    var payload = {'position': angle, 'orginal_width': oImageW.toString(), 'orginal_hight': oImageH.toString(),'carnet_pos':angle};
     request.headers.addAll(headers);
     request.fields["payload"] = jsonEncode(payload);
 
     request.files.add(http.MultipartFile('image', resizeFie.readAsBytes().asStream(), resizeFie.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
-    print('got added ${streamedResponse.statusCode}');
+
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.bytesToString();
       var jsonResponse = json.decode(respBody.toString());
@@ -164,6 +127,7 @@ Future<String> uploadFileForAngle({String imagePath, String angle}) async {
   return 'unknown error';
 }
 
+/// api for Make Model recognize
 Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
   String carNetUrl = "https://api.carnet.ai/v2/mmg/detect?box_offset=0&box_min_width=180&box_min_height=180&box_min_ratio=1&box_max_ratio=3"
       ".15&box_select=center&region=DEF&features=mmg,color,angle";
@@ -191,6 +155,7 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
   return null;
 }
 
+/// function that get detail of image including size
 Future<ImageDetail>getImageDetail({@required String imagePath})async{
 
   await Future.delayed(const Duration(seconds: 1));
@@ -212,12 +177,14 @@ Future<ImageDetail>getImageDetail({@required String imagePath})async{
 
 }
 
-Future<Image> imageWithRect(CarNetModel model, String imagePath) async{
+/// function that draw rect on image
+Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async{
   File originalFile = File(imagePath);
   img.Image image = img.decodeImage(originalFile.readAsBytesSync());
 
   if(!model.isSuccess){
-    return Image.memory(img.encodePng(image));
+
+    return img.encodePng(image);
   }
 
   int oImageH = image.height;
@@ -238,22 +205,21 @@ Future<Image> imageWithRect(CarNetModel model, String imagePath) async{
     0xFFFFFFFF,
   );
 
-  int timeStamp = DateTime.now().millisecondsSinceEpoch;
-
-  Image imageReturn = Image.memory(img.encodePng(rectImage));
+  // int timeStamp = DateTime.now().millisecondsSinceEpoch;
+  //
+  // // Image imageReturn = Image.memory(img.encodePng(rectImage));
+  //
   // final Directory extDir = await getApplicationDocumentsDirectory();
   // String dirPath = extDir.path;
   // final String filePath = '$dirPath/$timeStamp.png';
   // File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(rectImage));
 
-  return imageReturn;
+  return img.encodePng(rectImage);
 }
 
 
-
-Future<String> detectCarApi({
-  String imagePath,
-}) async {
+/// api for Car Detection
+Future<String> detectCarApi({String imagePath,}) async {
   String carAngleApi = "https://us-central1-autoly-inc.cloudfunctions.net/detect_car_api";
   var headers = {
     'content-type': 'application/octet-stream',
@@ -298,6 +264,7 @@ Future<String> detectCarApi({
   return 'unknown error';
 }
 
+/// api for image enhancement
 Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
   String imageTorchApi = "http://34.72.28.140:8084/enhanceImgTorchM2";
   var headers = {
@@ -332,9 +299,9 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
 
-      Image image = Image.memory(respBody);
+      // Image image = Image.memory(respBody);
 
-      return TorchImageResponse(isSuccess: true, image: image);
+      return TorchImageResponse(isSuccess: true, image: respBody);
     }
     return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
   } catch (e) {
@@ -344,6 +311,7 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
   }
 }
 
+/// api for car segment
 Future<TorchImageResponse> segmentCarApi({String imagePath}) async {
   String imageTorchApi = "https://us-central1-autoly-inc.cloudfunctions.net/segment_car_api";
   var headers = {
@@ -377,10 +345,10 @@ Future<TorchImageResponse> segmentCarApi({String imagePath}) async {
     print('got  ${streamedResponse.statusCode}');
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
-      print(respBody);
-      Image image = Image.memory(respBody);
+      // print(respBody);
+      // Image image = Image.memory(respBody);
 
-      return TorchImageResponse(isSuccess: true, image: image);
+      return TorchImageResponse(isSuccess: true, image: respBody);
     }
     return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
   } catch (e) {
@@ -390,6 +358,7 @@ Future<TorchImageResponse> segmentCarApi({String imagePath}) async {
   }
 }
 
+/// api for image enhancement
 Future<TorchImageResponse> enhanceImgTFM1({String imagePath}) async {
   String imageTorchApi = "http://35.192.191.7:8082/enhanceImgTFM1";
   var headers = {
@@ -424,9 +393,9 @@ Future<TorchImageResponse> enhanceImgTFM1({String imagePath}) async {
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
 
-      Image image = Image.memory(respBody);
+      // Image image = Image.memory(respBody);
 
-      return TorchImageResponse(isSuccess: true, image: image);
+      return TorchImageResponse(isSuccess: true, image: respBody);
     }
     return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
   } catch (e) {
@@ -436,6 +405,7 @@ Future<TorchImageResponse> enhanceImgTFM1({String imagePath}) async {
   }
 }
 
+/// api to remove darkness
 Future<TorchImageResponse> darknessTFM2({String imagePath}) async {
   String imageTorchApi = "http://35.192.191.7:8083/darknessTFM2";
   var headers = {
@@ -470,9 +440,9 @@ Future<TorchImageResponse> darknessTFM2({String imagePath}) async {
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
 
-      Image image = Image.memory(respBody);
+      // Image image = Image.memory(respBody);
 
-      return TorchImageResponse(isSuccess: true, image: image);
+      return TorchImageResponse(isSuccess: true, image: respBody);
     }
     return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
   } catch (e) {
@@ -482,6 +452,7 @@ Future<TorchImageResponse> darknessTFM2({String imagePath}) async {
   }
 }
 
+/// api to remove darkness
 Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
   String imageTorchApi = "https://darkness-image-tf-model-m1-yozbt3xo3q-uc.a.run.app/removeDarknessM1";
   var headers = {
@@ -516,9 +487,9 @@ Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
 
-      Image image = Image.memory(respBody);
+      // Image image = Image.memory(respBody);
 
-      return TorchImageResponse(isSuccess: true, image: image);
+      return TorchImageResponse(isSuccess: true, image: respBody);
     }
     return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
   } catch (e) {
@@ -528,6 +499,7 @@ Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
   }
 }
 
+/// api to detect damages
 Future<void> damagesDetectionApi({String imagePath}) async {
   String imageTorchApi = "https://car-damage-detection-yozbt3xo3q-uc.a.run.app/detectDamages";
   var headers = {
@@ -569,6 +541,7 @@ Future<void> damagesDetectionApi({String imagePath}) async {
   }
 }
 
+/// api for processing carnet function after guided camera
 Future<CarNetPostProcessResponse> carNetProcessing({String imagePath})async{
   CarNetModel _model;
   try{
@@ -585,7 +558,7 @@ Future<CarNetPostProcessResponse> carNetProcessing({String imagePath})async{
 
 
   try{
-    Image imageFile = await imageWithRect(_model,imagePath);
+    Uint8List imageFile = await imageWithRect(_model,imagePath);
     return CarNetPostProcessResponse(_model, TorchImageResponse(
       msg: 'ok',
       isSuccess: true,
