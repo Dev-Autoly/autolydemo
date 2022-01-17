@@ -1,8 +1,12 @@
 import 'dart:io';
 
 import 'package:autolydemo/core/common_functions.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:juxtapose/juxtapose.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 class DemoResultView extends StatefulWidget {
   final ConsolidateResult result;
@@ -176,8 +180,16 @@ class _DemoResultViewState extends State<DemoResultView> {
               color: Colors.white30,
               child: IconButton(
                 icon: const Icon(Icons.download),
-                onPressed: () {
-                  // TODO: download image available at widget.result.carNetPostProcessResponse.imageResponse.image
+                onPressed: () async {
+                  await requestPermission();
+                  final result = await ImageGallerySaver.saveImage(widget.result.carNetPostProcessResponse.imageResponse.image, name: "car_regoinition");
+                  if (result['isSuccess']) {
+                    final snackBar = SnackBar(
+                      content: const Text('Saved successfully'),
+                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
                 },
               ),
             ),
@@ -380,6 +392,14 @@ class TableContentRow extends StatelessWidget {
   }
 }
 
+requestPermission() async {
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.storage,
+  ].request();
+  final info = statuses[Permission.storage].toString();
+  print(info);
+}
+
 class OriginalImageDetailImage extends StatelessWidget {
   final ImageDetail imageDetail;
 
@@ -416,8 +436,20 @@ class OriginalImageDetailImage extends StatelessWidget {
               ],
             ),
             IconButton(
-                onPressed: () {
+                // ignore: void_checks
+                onPressed: () async {
                   //TODO: download image available at this path imageDetail.imagePath
+                  File file = File(imageDetail.imagePath);
+                  final bytes = await file.readAsBytes(); // Uint8List
+                  await requestPermission();
+                  final result = await ImageGallerySaver.saveImage(bytes, name: "orignal_car");
+                  if (result['isSuccess']) {
+                    final snackBar = SnackBar(
+                      content: const Text('Saved successfully'),
+                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
                 },
                 icon: const Icon(Icons.download))
           ],
@@ -513,9 +545,18 @@ class JuxtaposeBuilder extends StatelessWidget {
                 style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
               GestureDetector(
-                onTap: () {
+                onTap: () async {
                   print('download image available at this path @ response.image');
                   // TODO: Download image response.image
+                  await requestPermission();
+                  final result = await ImageGallerySaver.saveImage(response.image, name: "image");
+                  if (result['isSuccess']) {
+                    final snackBar = SnackBar(
+                      content: const Text('Saved successfully'),
+                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
                 },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
