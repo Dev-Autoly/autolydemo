@@ -413,6 +413,7 @@ class _StepGuidedCameraState extends State<StepGuidedCamera> with WidgetsBinding
                       if(imagePath!=null){
                         ImagesHolderClass result = widget.list[currentImageIndex];
                         result.imagePath = imagePath;
+                        result.title = widget.list[currentImageIndex].title;
 
                         Navigator.pushReplacement(
                           context,

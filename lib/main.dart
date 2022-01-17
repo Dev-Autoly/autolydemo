@@ -1,4 +1,5 @@
 
+import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/removeDarknessM1/removeDarknessM1Home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -7,7 +8,9 @@ import 'package:provider/provider.dart';
 import 'carAngle/car_angle_detection_page.dart';
 import 'carDetection/car_detection_page.dart';
 import 'carNet/carnet_main_widget.dart';
+import 'car_damage_page/car_damage_main.dart';
 import 'darknessTFM2/darknessTFM2Home.dart';
+import 'demo_main_widgets/demo_inprogress_widget.dart';
 import 'enhanceImgTFM1Widgets/enhanceingImageTFM1Widget.dart';
 import 'guided_camera/basic_view_model.dart';
 import 'guided_camera/step_exterior_photo.dart';
@@ -90,22 +93,11 @@ class MyHomePage extends StatelessWidget {
             title: 'Make Model Recognizer',
             description: 'Cloud ML model, recognize make, model,year,color and angle of car in given image',
             onTap: () async{
-
+              //
               // String file = await pickImage(option: imagePickerOption.gallery);
-              // await Future.delayed(const Duration(milliseconds: 500));
+              //
               // if(file!=null){
               //   await damagesDetectionApi(imagePath: file);
-
-                // ImagesHolderClass imageObject = ImagesHolderClass(
-                //   imagePath: file
-                // );
-                //
-                // Navigator.push(
-                //   context,
-                //   MaterialPageRoute(
-                //     builder: (context) => DemoNetworkCallInProgress(selectedImage: imageObject),
-                //   ),
-                // );
               // }
 
               Navigator.push(
@@ -198,6 +190,12 @@ class MyHomePage extends StatelessWidget {
             title: 'Car Damage Prediction',
             description: 'This API predict damage to car parts',
             onTap: () async{
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const CarDamageApiPage(),
+                ),
+              );
              // TODO:Mohammad please navigate to damage api page from here
             },
           ),
