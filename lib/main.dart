@@ -1,6 +1,5 @@
 
 import 'package:autolydemo/core/common_functions.dart';
-import 'package:autolydemo/damageCar/damagecar.dart';
 import 'package:autolydemo/guided_camera/imageHolderClass.dart';
 import 'package:autolydemo/removeDarknessM1/removeDarknessM1Home.dart';
 import 'package:flutter/material.dart';
@@ -202,12 +201,7 @@ class MyHomePage extends StatelessWidget {
             description: 'This API predict damage to car parts',
             onTap: () async{
              // TODO:Mohammad please navigate to damage api page from here
-                       Navigator.push(
-                context,
-                MaterialPageRoute(
-                  builder: (context) => const DamageCarPage(),
-                ),
-              );
+
             },
           ),
 

@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
 import 'package:path_provider/path_provider.dart';
 
@@ -10,6 +11,10 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:image/image.dart' as img;
+import 'package:palette_generator/palette_generator.dart';
+import 'dart:ui' as ui;
+
+
 
 class TorchImageResponse {
   final bool isSuccess;
@@ -19,14 +24,14 @@ class TorchImageResponse {
   TorchImageResponse({this.isSuccess, this.image, this.msg});
 }
 
-class CarNetPostProcessResponse {
+class CarNetPostProcessResponse{
   final CarNetModel carNetModel;
   final TorchImageResponse imageResponse;
 
   CarNetPostProcessResponse(this.carNetModel, this.imageResponse);
 }
 
-class ConsolidateResult {
+class ConsolidateResult{
   final CarNetPostProcessResponse carNetPostProcessResponse;
   final TorchImageResponse imageTorchApiResponse;
   final TorchImageResponse enhanceImgTFM1Response;
@@ -50,7 +55,9 @@ class ImageDetail {
   final String sizeInMB;
   final String imagePath;
 
-  ImageDetail({this.imageHeight, this.imageWidth, this.sizeInKB, this.sizeInMB, this.imagePath});
+  ImageDetail({this.imageHeight, this.imageWidth, this.sizeInKB, this.sizeInMB,this.imagePath});
+
+
 }
 
 enum imagePickerOption { camera, gallery }
@@ -95,13 +102,10 @@ Future<String> uploadFileForAngle({String imagePath, String angle}) async {
     final String filePath = '$dirPath/$timeStamp.png';
     File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
 
+
+
     var request = http.MultipartRequest('POST', Uri.parse(carAngleApi));
-    var payload = {
-      'position': angle,
-      'orginal_width': oImageW.toString(),
-      'orginal_hight': oImageH.toString(),
-      'carnet_pos': angle,
-    };
+    var payload = {'position': angle, 'orginal_width': oImageW.toString(), 'orginal_hight': oImageH.toString(),'carnet_pos':angle};
     request.headers.addAll(headers);
     request.fields["payload"] = jsonEncode(payload);
 
@@ -116,7 +120,7 @@ Future<String> uploadFileForAngle({String imagePath, String angle}) async {
       return jsonResponse.toString();
     }
   } catch (e) {
-    debugPrint('Error:${e.toString()}');
+    print('Error:${e.toString()}');
     return e.toString();
   }
 
@@ -128,6 +132,9 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
   String carNetUrl = "https://api.carnet.ai/v2/mmg/detect?box_offset=0&box_min_width=180&box_min_height=180&box_min_ratio=1&box_max_ratio=3"
       ".15&box_select=center&region=DEF&features=mmg,color,angle";
 
+  //old api key: 32954476-72e5-47ae-9d27-4e0606735f2e
+  String apiKey = '16ac08db-9d44-4512-afd5-7ffba3707da9';
+
   var headers = {'content-type': 'application/octet-stream', 'accept': 'application/json', 'api-key': '16ac08db-9d44-4512-afd5-7ffba3707da9'};
 
   var request = http.MultipartRequest('POST', Uri.parse(carNetUrl));
@@ -137,19 +144,23 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
   request.files.add(http.MultipartFile('picture', File(imagePath).readAsBytes().asStream(), File(imagePath).lengthSync(), filename: imagePath.split("/").last));
 
   var streamedResponse = await request.send();
-
+  // if (streamedResponse.statusCode == 200) {
+  //
+  // }
+  // var response = http.Response.fromStream(streamedResponse);
   final respBody = await streamedResponse.stream.bytesToString();
   var jsonResponse = json.decode(respBody.toString());
   debugPrint(jsonResponse.toString());
   return CarNetModel.fromJson(jsonResponse);
-
+  return null;
 }
 
 /// function that get detail of image including size
-Future<ImageDetail> getImageDetail({@required String imagePath}) async {
+Future<ImageDetail>getImageDetail({@required String imagePath})async{
+
   await Future.delayed(const Duration(seconds: 1));
   File originalFile = File(imagePath);
-  final bytes = originalFile.readAsBytesSync().lengthInBytes;
+  final bytes  =  originalFile.readAsBytesSync().lengthInBytes;
   final kb = bytes / 1024;
   final mb = kb / 1024;
   img.Image image = img.decodeImage(originalFile.readAsBytesSync());
@@ -161,25 +172,29 @@ Future<ImageDetail> getImageDetail({@required String imagePath}) async {
     imageWidth: oImageW,
     sizeInKB: kb.toStringAsFixed(2).toString(),
     sizeInMB: mb.toStringAsFixed(2).toString(),
+
   );
+
 }
 
 /// function that draw rect on image
-Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async {
+Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async{
   File originalFile = File(imagePath);
   img.Image image = img.decodeImage(originalFile.readAsBytesSync());
 
-  if (!model.isSuccess) {
+  if(!model.isSuccess){
+
     return img.encodePng(image);
   }
 
   int oImageH = image.height;
   int oImageW = image.width;
 
-  int x1 = oImageW - (oImageW * model.detections[0].box.brX).toInt();
-  int y1 = (oImageH * model.detections[0].box.brY).toInt();
-  int x2 = oImageW - (oImageW * (model.detections[0].box.tlX)).toInt();
-  int y2 = (oImageH * (model.detections[0].box.tlY)).toInt();
+
+  int x1 = oImageW-(oImageW*model.detections[0].box.brX).toInt();
+  int y1 = (oImageH*model.detections[0].box.brY).toInt();
+  int x2 = oImageW-(oImageW*(model.detections[0].box.tlX)).toInt();
+  int y2 = (oImageH*(model.detections[0].box.tlY)).toInt();
 
   img.Image rectImage = img.drawRect(
     image,
@@ -202,10 +217,9 @@ Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async {
   return img.encodePng(rectImage);
 }
 
+
 /// api for Car Detection
-Future<String> detectCarApi({
-  String imagePath,
-}) async {
+Future<String> detectCarApi({String imagePath,}) async {
   String carAngleApi = "https://us-central1-autoly-inc.cloudfunctions.net/detect_car_api";
   var headers = {
     'content-type': 'application/octet-stream',
@@ -225,7 +239,7 @@ Future<String> detectCarApi({
     final String filePath = '$dirPath/$timeStamp.png';
     File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
 
-    debugPrint(resizeFie.path);
+    print(resizeFie.path);
 
     var request = http.MultipartRequest('POST', Uri.parse(carAngleApi));
     var payload = {'orginal_width': oImageW.toString(), 'orginal_hight': oImageH.toString()};
@@ -235,7 +249,7 @@ Future<String> detectCarApi({
     request.files.add(http.MultipartFile('image', resizeFie.readAsBytes().asStream(), resizeFie.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
-    debugPrint('got added ${streamedResponse.statusCode}');
+    print('got added ${streamedResponse.statusCode}');
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.bytesToString();
       var jsonResponse = json.decode(respBody.toString());
@@ -243,7 +257,7 @@ Future<String> detectCarApi({
       return jsonResponse.toString();
     }
   } catch (e) {
-    debugPrint('Error:${e.toString()}');
+    print('Error:${e.toString()}');
     return e.toString();
   }
 
@@ -253,234 +267,6 @@ Future<String> detectCarApi({
 /// api for image enhancement
 Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
   String imageTorchApi = "http://34.72.28.140:8084/enhanceImgTorchM2";
-  var headers = {
-    'content-type': 'application/octet-stream',
-    'accept': 'application/json',
-  };
-  try {
-    File originalFile = File(imagePath);
-    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
-    img.Image thumbnail = img.copyResize(image, width: 342);
-
-    int timeStamp = DateTime.now().millisecondsSinceEpoch;
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    String dirPath = extDir.path;
-    final String filePath = '$dirPath/$timeStamp.png';
-    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
-
-    debugPrint(resizeFie.path);
-
-    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
-    request.headers.addAll(headers);
-    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
-    // request.fields["payload"] = jsonEncode(payload);
-
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
-
-    var streamedResponse = await request.send();
-    debugPrint('got  ${streamedResponse.statusCode}');
-    if (streamedResponse.statusCode == 200) {
-      final respBody = await streamedResponse.stream.toBytes();
-
-      // Image image = Image.memory(respBody);
-
-      return TorchImageResponse(isSuccess: true, image: respBody);
-    }
-    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
-  } catch (e) {
-    debugPrint('Error:${e.toString()}');
-
-    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
-  }
-}
-
-/// api for car segment
-Future<TorchImageResponse> segmentCarApi({String imagePath}) async {
-  String imageTorchApi = "https://us-central1-autoly-inc.cloudfunctions.net/segment_car_api";
-  var headers = {
-    'content-type': 'application/octet-stream',
-    'accept': 'application/json',
-  };
-  try {
-    File originalFile = File(imagePath);
-    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
-    img.Image thumbnail = img.copyResize(image, width: 342);
-
-    int timeStamp = DateTime.now().millisecondsSinceEpoch;
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    String dirPath = extDir.path;
-    final String filePath = '$dirPath/$timeStamp.png';
-    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
-
-    debugPrint(resizeFie.path);
-
-    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
-    request.headers.addAll(headers);
-    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
-    // request.fields["payload"] = jsonEncode(payload);
-
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
-
-    var streamedResponse = await request.send();
-    debugPrint('got  ${streamedResponse.statusCode}');
-    if (streamedResponse.statusCode == 200) {
-      final respBody = await streamedResponse.stream.toBytes();
-      // debugPrint(respBody);
-      // Image image = Image.memory(respBody);
-
-      return TorchImageResponse(isSuccess: true, image: respBody);
-    }
-    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
-  } catch (e) {
-    debugPrint('Error:${e.toString()}');
-
-    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
-  }
-}
-
-/// api for image enhancement
-Future<TorchImageResponse> enhanceImgTFM1({String imagePath}) async {
-  String imageTorchApi = "http://35.192.191.7:8082/enhanceImgTFM1";
-  var headers = {
-    'content-type': 'application/octet-stream',
-    'accept': 'application/json',
-  };
-  try {
-    File originalFile = File(imagePath);
-    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
-    img.Image thumbnail = img.copyResize(image, width: 342);
-
-    int timeStamp = DateTime.now().millisecondsSinceEpoch;
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    String dirPath = extDir.path;
-    final String filePath = '$dirPath/$timeStamp.png';
-    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
-
-    debugPrint(resizeFie.path);
-
-    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
-    request.headers.addAll(headers);
-    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
-    // request.fields["payload"] = jsonEncode(payload);
-
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
-
-    var streamedResponse = await request.send();
-    debugPrint('got  ${streamedResponse.statusCode}');
-    if (streamedResponse.statusCode == 200) {
-      final respBody = await streamedResponse.stream.toBytes();
-
-      // Image image = Image.memory(respBody);
-
-      return TorchImageResponse(isSuccess: true, image: respBody);
-    }
-    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
-  } catch (e) {
-    debugPrint('Error:${e.toString()}');
-
-    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
-  }
-}
-
-/// api to remove darkness
-Future<TorchImageResponse> darknessTFM2({String imagePath}) async {
-  String imageTorchApi = "http://35.192.191.7:8083/darknessTFM2";
-  var headers = {
-    'content-type': 'application/octet-stream',
-    'accept': 'application/json',
-  };
-  try {
-    File originalFile = File(imagePath);
-    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
-
-    img.Image thumbnail = img.copyResize(image, width: 342);
-
-    int timeStamp = DateTime.now().millisecondsSinceEpoch;
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    String dirPath = extDir.path;
-    final String filePath = '$dirPath/$timeStamp.png';
-    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
-
-    debugPrint(resizeFie.path);
-
-    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
-    request.headers.addAll(headers);
-    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
-    // request.fields["payload"] = jsonEncode(payload);
-
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
-
-    var streamedResponse = await request.send();
-    debugPrint('got  ${streamedResponse.statusCode}');
-    if (streamedResponse.statusCode == 200) {
-      final respBody = await streamedResponse.stream.toBytes();
-
-      // Image image = Image.memory(respBody);
-
-      return TorchImageResponse(isSuccess: true, image: respBody);
-    }
-    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
-  } catch (e) {
-    debugPrint('Error:${e.toString()}');
-
-    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
-  }
-}
-
-/// api to remove darkness
-Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
-  String imageTorchApi = "https://darkness-image-tf-model-m1-yozbt3xo3q-uc.a.run.app/removeDarknessM1";
-  var headers = {
-    'content-type': 'application/octet-stream',
-    'accept': 'application/json',
-  };
-  try {
-    File originalFile = File(imagePath);
-    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
-
-    img.Image thumbnail = img.copyResize(image, width: 342);
-
-    int timeStamp = DateTime.now().millisecondsSinceEpoch;
-
-    final Directory extDir = await getApplicationDocumentsDirectory();
-    String dirPath = extDir.path;
-    final String filePath = '$dirPath/$timeStamp.png';
-    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
-
-    debugPrint(resizeFie.path);
-
-    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
-    request.headers.addAll(headers);
-    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
-    // request.fields["payload"] = jsonEncode(payload);
-
-    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
-
-    var streamedResponse = await request.send();
-    debugPrint('got  ${streamedResponse.statusCode}');
-    if (streamedResponse.statusCode == 200) {
-      final respBody = await streamedResponse.stream.toBytes();
-
-      // Image image = Image.memory(respBody);
-
-      return TorchImageResponse(isSuccess: true, image: respBody);
-    }
-    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
-  } catch (e) {
-    debugPrint('Error:${e.toString()}');
-
-    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
-  }
-}
-
-/// api to damage car
-Future<TorchImageResponse> checkDamageApi({String imagePath}) async {
-  print('checkDamageApi ');
-  String imageTorchApi = "https://car-damage-detection-yozbt3xo3q-uc.a.run.app/detectDamages";
   var headers = {
     'content-type': 'application/octet-stream',
     'accept': 'application/json',
@@ -512,17 +298,204 @@ Future<TorchImageResponse> checkDamageApi({String imagePath}) async {
     print('got  ${streamedResponse.statusCode}');
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
-      print('treamedResponse.stream > ${streamedResponse.stream}');
 
       // Image image = Image.memory(respBody);
 
-      // return TorchImageResponse(isSuccess: true, image: respBody);
+      return TorchImageResponse(isSuccess: true, image: respBody);
     }
-    // return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
+    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
   } catch (e) {
     print('Error:${e.toString()}');
 
-    // return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
+    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
+  }
+}
+
+/// api for car segment
+Future<TorchImageResponse> segmentCarApi({String imagePath}) async {
+  String imageTorchApi = "https://us-central1-autoly-inc.cloudfunctions.net/segment_car_api";
+  var headers = {
+    'content-type': 'application/octet-stream',
+    'accept': 'application/json',
+  };
+  try {
+    File originalFile = File(imagePath);
+    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
+    int oImageH = image.height;
+    int oImageW = image.width;
+    img.Image thumbnail = img.copyResize(image, width: 342);
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
+
+    final Directory extDir = await getApplicationDocumentsDirectory();
+    String dirPath = extDir.path;
+    final String filePath = '$dirPath/$timeStamp.png';
+    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
+
+    print(resizeFie.path);
+
+    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
+    request.headers.addAll(headers);
+    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
+    // request.fields["payload"] = jsonEncode(payload);
+
+    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+
+    var streamedResponse = await request.send();
+    print('got  ${streamedResponse.statusCode}');
+    if (streamedResponse.statusCode == 200) {
+      final respBody = await streamedResponse.stream.toBytes();
+      // print(respBody);
+      // Image image = Image.memory(respBody);
+
+      return TorchImageResponse(isSuccess: true, image: respBody);
+    }
+    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
+  } catch (e) {
+    print('Error:${e.toString()}');
+
+    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
+  }
+}
+
+/// api for image enhancement
+Future<TorchImageResponse> enhanceImgTFM1({String imagePath}) async {
+  String imageTorchApi = "http://35.192.191.7:8082/enhanceImgTFM1";
+  var headers = {
+    'content-type': 'application/octet-stream',
+    'accept': 'application/json',
+  };
+  try {
+    File originalFile = File(imagePath);
+    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
+    int oImageH = image.height;
+    int oImageW = image.width;
+    img.Image thumbnail = img.copyResize(image, width: 342);
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
+
+    final Directory extDir = await getApplicationDocumentsDirectory();
+    String dirPath = extDir.path;
+    final String filePath = '$dirPath/$timeStamp.png';
+    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
+
+    print(resizeFie.path);
+
+    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
+    request.headers.addAll(headers);
+    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
+    // request.fields["payload"] = jsonEncode(payload);
+
+    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+
+    var streamedResponse = await request.send();
+    print('got  ${streamedResponse.statusCode}');
+    if (streamedResponse.statusCode == 200) {
+      final respBody = await streamedResponse.stream.toBytes();
+
+      // Image image = Image.memory(respBody);
+
+      return TorchImageResponse(isSuccess: true, image: respBody);
+    }
+    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
+  } catch (e) {
+    print('Error:${e.toString()}');
+
+    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
+  }
+}
+
+/// api to remove darkness
+Future<TorchImageResponse> darknessTFM2({String imagePath}) async {
+  String imageTorchApi = "http://35.192.191.7:8083/darknessTFM2";
+  var headers = {
+    'content-type': 'application/octet-stream',
+    'accept': 'application/json',
+  };
+  try {
+    File originalFile = File(imagePath);
+    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
+    int oImageH = image.height;
+    int oImageW = image.width;
+    img.Image thumbnail = img.copyResize(image, width: 342);
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
+
+    final Directory extDir = await getApplicationDocumentsDirectory();
+    String dirPath = extDir.path;
+    final String filePath = '$dirPath/$timeStamp.png';
+    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
+
+    print(resizeFie.path);
+
+    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
+    request.headers.addAll(headers);
+    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
+    // request.fields["payload"] = jsonEncode(payload);
+
+    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+
+    var streamedResponse = await request.send();
+    print('got  ${streamedResponse.statusCode}');
+    if (streamedResponse.statusCode == 200) {
+      final respBody = await streamedResponse.stream.toBytes();
+
+      // Image image = Image.memory(respBody);
+
+      return TorchImageResponse(isSuccess: true, image: respBody);
+    }
+    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
+  } catch (e) {
+    print('Error:${e.toString()}');
+
+    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
+  }
+}
+
+/// api to remove darkness
+Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
+  String imageTorchApi = "https://darkness-image-tf-model-m1-yozbt3xo3q-uc.a.run.app/removeDarknessM1";
+  var headers = {
+    'content-type': 'application/octet-stream',
+    'accept': 'application/json',
+  };
+  try {
+    File originalFile = File(imagePath);
+    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
+    int oImageH = image.height;
+    int oImageW = image.width;
+    img.Image thumbnail = img.copyResize(image, width: 342);
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
+
+    final Directory extDir = await getApplicationDocumentsDirectory();
+    String dirPath = extDir.path;
+    final String filePath = '$dirPath/$timeStamp.png';
+    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
+
+    print(resizeFie.path);
+
+    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
+    request.headers.addAll(headers);
+    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
+    // request.fields["payload"] = jsonEncode(payload);
+
+    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+
+    var streamedResponse = await request.send();
+    print('got  ${streamedResponse.statusCode}');
+    if (streamedResponse.statusCode == 200) {
+      final respBody = await streamedResponse.stream.toBytes();
+
+      // Image image = Image.memory(respBody);
+
+      return TorchImageResponse(isSuccess: true, image: respBody);
+    }
+    return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
+  } catch (e) {
+    print('Error:${e.toString()}');
+
+    return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
   }
 }
 
@@ -536,6 +509,8 @@ Future<void> damagesDetectionApi({String imagePath}) async {
   try {
     File originalFile = File(imagePath);
     img.Image image = img.decodeImage(originalFile.readAsBytesSync());
+    int oImageH = image.height;
+    int oImageW = image.width;
     img.Image thumbnail = img.copyResize(image, width: 342);
 
     int timeStamp = DateTime.now().millisecondsSinceEpoch;
@@ -545,7 +520,7 @@ Future<void> damagesDetectionApi({String imagePath}) async {
     final String filePath = '$dirPath/$timeStamp.png';
     File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
 
-    debugPrint(resizeFie.path);
+    print(resizeFie.path);
 
     var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
     request.headers.addAll(headers);
@@ -557,40 +532,48 @@ Future<void> damagesDetectionApi({String imagePath}) async {
     var streamedResponse = await request.send();
 
     var response = await http.Response.fromStream(streamedResponse);
-    debugPrint(response.statusCode.toString());
-    debugPrint(response.body);
+    print(response.statusCode);
+    print(response.body);
+
   } catch (e) {
-    debugPrint('Error:${e.toString()}');
+    print('Error:${e.toString()}');
+
   }
 }
 
 /// api for processing carnet function after guided camera
-Future<CarNetPostProcessResponse> carNetProcessing({String imagePath}) async {
+Future<CarNetPostProcessResponse> carNetProcessing({String imagePath})async{
   CarNetModel _model;
-  try {
-    _model = await uploadToCarNet(imagePath: imagePath);
-  } catch (e) {
-    return CarNetPostProcessResponse(
-      null,
-      TorchImageResponse(
-        msg: 'Could not process Image',
-        isSuccess: false,
-        image: null,
-      ),
+  try{
+     _model = await uploadToCarNet(imagePath: imagePath);
+  }catch(e){
+    return CarNetPostProcessResponse(null, TorchImageResponse(
+      msg: 'Could not process Image',
+      isSuccess: false,
+      image: null,
+    ),
     );
   }
 
-  try {
-    Uint8List imageFile = await imageWithRect(_model, imagePath);
-    return CarNetPostProcessResponse(_model, TorchImageResponse(msg: 'ok', isSuccess: true, image: imageFile));
-  } catch (e) {
-    return CarNetPostProcessResponse(
-      null,
-      TorchImageResponse(
-        msg: e.toString(),
-        isSuccess: false,
-        image: null,
-      ),
-    );
+
+
+  try{
+    Uint8List imageFile = await imageWithRect(_model,imagePath);
+    return CarNetPostProcessResponse(_model, TorchImageResponse(
+      msg: 'ok',
+      isSuccess: true,
+      image: imageFile
+    ));
+
+  }catch(e){
+    return CarNetPostProcessResponse(null, TorchImageResponse(
+      msg: e.toString(),
+      isSuccess: false,
+      image: null,
+    ),);
   }
+
+
+
+
 }
