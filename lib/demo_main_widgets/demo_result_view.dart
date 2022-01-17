@@ -239,6 +239,59 @@ class _DemoResultViewState extends State<DemoResultView> {
     );
   }
 
+  Widget getAngleBoxImage() {
+    if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
+      return Stack(
+        children: [
+          Center(child: Image.network(replaceImageCloud(widget.result.angelApiResponse.image))),
+          Positioned(
+            left: 20,
+            bottom: 10,
+            child: Column(
+              children: [
+                Text(
+                  '${widget.result.angelApiResponse.predictedPosition}',
+                  style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                Text(
+                  '${widget.result.angelApiResponse.fillingPercentage}',
+                  style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+              ],
+            ),
+          ),
+          Positioned(
+            right: 10,
+            bottom: 0,
+            child: Container(
+              color: Colors.white30,
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: () async {
+                  await requestPermission();
+                  final response = await Dio().get(replaceImageCloud(replaceImageCloud(widget.result.angelApiResponse.image)),
+                      options: Options(responseType: ResponseType.bytes));
+
+                  final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data), name: "car_angle");
+                  if (result['isSuccess']) {
+                    final snackBar = SnackBar(
+                      content: const Text('Saved successfully'),
+                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+                    );
+                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+                  }
+                },
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return const Center(
+      child: Text('Error recognizing image'),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
@@ -337,9 +390,12 @@ class _DemoResultViewState extends State<DemoResultView> {
 
             const DividerWidget(),
 
-            // SizedBox(
-            //   child: Image.network(widget.result.angelApiResponse.image),
-            // ),
+            const Text(
+              'Car Angle Recognition',
+              style: TextStyle(fontSize: 21),
+            ),
+            getAngleBoxImage(),
+            const DividerWidget(),
 
             /// Image enhancement - Option 1
             JuxtaposeBuilder(

@@ -1,4 +1,3 @@
-
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/guided_camera/imageHolderClass.dart';
 import 'package:autolydemo/removeDarknessM1/removeDarknessM1Home.dart';
@@ -17,10 +16,12 @@ import 'guided_camera/basic_view_model.dart';
 import 'guided_camera/step_exterior_photo.dart';
 import 'image_enhancement/image_enhancement_page.dart';
 
-
-
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setPreferredOrientations([
+    DeviceOrientation.portraitUp,
+    DeviceOrientation.portraitDown,
+  ]);
   runApp(const MyApp());
 }
 
@@ -44,14 +45,11 @@ class MyApp extends StatelessWidget {
         home: const MyHomePage(),
       ),
     );
-
   }
 }
 
 class MyHomePage extends StatelessWidget {
-
   const MyHomePage({Key key}) : super(key: key);
-
 
   @override
   Widget build(BuildContext context) {
@@ -69,7 +67,7 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Guided Camera',
             description: 'Guided camera steps',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -81,7 +79,7 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Car  Detection',
             description: 'Detect if car is available in the image',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -93,7 +91,7 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Make Model Recognizer',
             description: 'Cloud ML model, recognize make, model,year,color and angle of car in given image',
-            onTap: () async{
+            onTap: () async {
               //
               // String file = await pickImage(option: imagePickerOption.gallery);
               //
@@ -113,7 +111,7 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Car Angle Detection',
             description: 'Detect car angle',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -126,7 +124,7 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Image Enhancement Option 1',
             description: 'Api enhances image quality',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -151,7 +149,7 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Image Enhancement Option 2',
             description: 'Image Enhancement Option 2',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -161,11 +159,10 @@ class MyHomePage extends StatelessWidget {
             },
           ),
 
-
           ListItemWidget(
             title: 'Darkness Removal Option 1',
             description: 'This API removes the darkness from image.',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -177,7 +174,7 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Darkness Removal Option 2',
             description: 'This API removes the darkness from image.',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -190,17 +187,15 @@ class MyHomePage extends StatelessWidget {
           ListItemWidget(
             title: 'Car Damage Prediction',
             description: 'This API predict damage to car parts',
-            onTap: () async{
+            onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const CarDamageApiPage(),
                 ),
               );
-
             },
           ),
-
         ],
       ),
     );
@@ -242,7 +237,7 @@ class ListItemWidget extends StatelessWidget {
                     padding: const EdgeInsets.all(8.0),
                     child: MaterialButton(
                       color: Colors.blue,
-                      onPressed: (){
+                      onPressed: () {
                         onTap.call();
                       },
                       child: const SizedBox(
