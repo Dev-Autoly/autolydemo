@@ -499,6 +499,55 @@ Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
   }
 }
 
+/// api to damage car
+Future<TorchImageResponse> checkDamageApi({String imagePath}) async {
+  print('checkDamageApi ');
+  String imageTorchApi = "https://car-damage-detection-yozbt3xo3q-uc.a.run.app/detectDamages";
+  var headers = {
+    'content-type': 'application/octet-stream',
+    'accept': 'application/json',
+  };
+  try {
+    File originalFile = File(imagePath);
+    img.Image image = img.decodeImage(originalFile.readAsBytesSync());
+    int oImageH = image.height;
+    int oImageW = image.width;
+    img.Image thumbnail = img.copyResize(image, width: 342);
+
+    int timeStamp = DateTime.now().millisecondsSinceEpoch;
+
+    final Directory extDir = await getApplicationDocumentsDirectory();
+    String dirPath = extDir.path;
+    final String filePath = '$dirPath/$timeStamp.png';
+    File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
+
+    print(resizeFie.path);
+
+    var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
+    request.headers.addAll(headers);
+    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
+    // request.fields["payload"] = jsonEncode(payload);
+
+    request.files.add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+
+    var streamedResponse = await request.send();
+    print('got  ${streamedResponse.statusCode}');
+    if (streamedResponse.statusCode == 200) {
+      final respBody = await streamedResponse.stream.toBytes();
+      print('treamedResponse.stream > ${streamedResponse.stream}');
+
+      // Image image = Image.memory(respBody);
+
+      // return TorchImageResponse(isSuccess: true, image: respBody);
+    }
+    // return TorchImageResponse(isSuccess: false, image: null, msg: streamedResponse.statusCode.toString());
+  } catch (e) {
+    print('Error:${e.toString()}');
+
+    // return TorchImageResponse(isSuccess: false, image: null, msg: e.toString());
+  }
+}
+
 /// api to detect damages
 Future<void> damagesDetectionApi({String imagePath}) async {
   String imageTorchApi = "https://car-damage-detection-yozbt3xo3q-uc.a.run.app/detectDamages";
