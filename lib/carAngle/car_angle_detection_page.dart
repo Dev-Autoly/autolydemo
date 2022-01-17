@@ -37,6 +37,11 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
 
   Widget getAngleBoxImage() {
     if (_model != null) {
+      if(_model.image==null){
+        return Center(
+          child: Text(_model.msg),
+        );
+      }
       return Stack(
         children: [
           Center(child: Image.network(replaceImageCloud(_model.image))),
@@ -46,7 +51,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
             child: Column(
               children: [
                 Text(
-                  '${_model.predictedPosition}',
+                  _model.predictedPosition,
                   style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 Text(

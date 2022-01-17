@@ -48,8 +48,20 @@ class _ImageEnhancementPageState extends State<ImageEnhancementPage> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                      ? Container(
-                          child: Image.memory(_response.image),
+                      ? Stack(
+                          children: [
+                            Image.memory(_response.image),
+                            Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: IconButton(
+                                onPressed: () {
+                                  downloadBytesImage(_response.image, context);
+                                },
+                                icon: const Icon(Icons.download),
+                              ),
+                            )
+                          ],
                         )
                       : DisplayCenterText(msg: _response.msg)),
 
@@ -95,5 +107,3 @@ class _ImageEnhancementPageState extends State<ImageEnhancementPage> {
     );
   }
 }
-
-

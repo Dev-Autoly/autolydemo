@@ -92,12 +92,6 @@ class MyHomePage extends StatelessWidget {
             title: 'Make Model Recognizer',
             description: 'Cloud ML model, recognize make, model,year,color and angle of car in given image',
             onTap: () async {
-              //
-              // String file = await pickImage(option: imagePickerOption.gallery);
-              //
-              // if(file!=null){
-              //   await damagesDetectionApi(imagePath: file);
-              // }
 
               Navigator.push(
                 context,

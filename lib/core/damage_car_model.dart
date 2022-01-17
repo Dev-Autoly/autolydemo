@@ -95,7 +95,7 @@ class Severity {
 
   Severity.fromJson(Map<String, dynamic> json) {
     try {
-      score = json['score'];
+      score = json['score']??0.0;
     } catch (e) {
       debugPrint(e.toString());
     }

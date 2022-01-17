@@ -1,12 +1,8 @@
 import 'dart:io';
-import 'dart:typed_data';
 
 import 'package:autolydemo/core/common_functions.dart';
-import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
-import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:juxtapose/juxtapose.dart';
-import 'package:permission_handler/permission_handler.dart';
 
 class DemoResultView extends StatefulWidget {
   final ConsolidateResult result;
@@ -181,16 +177,7 @@ class _DemoResultViewState extends State<DemoResultView> {
               child: IconButton(
                 icon: const Icon(Icons.download),
                 onPressed: () async {
-                  await requestPermission();
-                  final result =
-                      await ImageGallerySaver.saveImage(widget.result.carNetPostProcessResponse.imageResponse.image, name: "car_regoinition");
-                  if (result['isSuccess']) {
-                    final snackBar = SnackBar(
-                      content: const Text('Saved successfully'),
-                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
+                  downloadBytesImage(widget.result.carNetPostProcessResponse.imageResponse.image, context);
                 },
               ),
             ),
@@ -207,7 +194,29 @@ class _DemoResultViewState extends State<DemoResultView> {
     if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
       return Stack(
         children: [
-          Center(child: Image.network(replaceImageCloud(widget.result.damageCarModel.partsDetails.image))),
+          Center(
+            child: Image.network(
+              replaceImageCloud(widget.result.damageCarModel.partsDetails.image),
+            ),
+          ),
+          Positioned(
+            left: 30,
+            bottom: 5,
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Damage Severity',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                ),
+                Text(
+                  widget.result.damageCarModel.severity.score.toString(),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                ),
+              ],
+            ),
+          ),
           Positioned(
             right: 10,
             bottom: 0,
@@ -216,17 +225,7 @@ class _DemoResultViewState extends State<DemoResultView> {
               child: IconButton(
                 icon: const Icon(Icons.download),
                 onPressed: () async {
-                  await requestPermission();
-                  final response = await Dio()
-                      .get(replaceImageCloud(widget.result.damageCarModel.partsDetails.image), options: Options(responseType: ResponseType.bytes));
-                  final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data), name: "damage_car");
-                  if (result['isSuccess']) {
-                    final snackBar = SnackBar(
-                      content: const Text('Saved successfully'),
-                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
+                  downloadUrlImage(widget.result.angelApiResponse.image, context);
                 },
               ),
             ),
@@ -240,7 +239,13 @@ class _DemoResultViewState extends State<DemoResultView> {
   }
 
   Widget getAngleBoxImage() {
+
     if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
+      if(widget.result.angelApiResponse.image==null){
+        return Center(
+          child: Text(widget.result.angelApiResponse.msg),
+        );
+      }
       return Stack(
         children: [
           Center(child: Image.network(replaceImageCloud(widget.result.angelApiResponse.image))),
@@ -250,7 +255,7 @@ class _DemoResultViewState extends State<DemoResultView> {
             child: Column(
               children: [
                 Text(
-                  '${widget.result.angelApiResponse.predictedPosition}',
+                  widget.result.angelApiResponse.predictedPosition,
                   style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
                 ),
                 Text(
@@ -268,18 +273,7 @@ class _DemoResultViewState extends State<DemoResultView> {
               child: IconButton(
                 icon: const Icon(Icons.download),
                 onPressed: () async {
-                  await requestPermission();
-                  final response = await Dio().get(replaceImageCloud(replaceImageCloud(widget.result.angelApiResponse.image)),
-                      options: Options(responseType: ResponseType.bytes));
-
-                  final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data), name: "car_angle");
-                  if (result['isSuccess']) {
-                    final snackBar = SnackBar(
-                      content: const Text('Saved successfully'),
-                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
+                  downloadUrlImage(widget.result.angelApiResponse.image, context);
                 },
               ),
             ),
@@ -505,13 +499,7 @@ class TableContentRow extends StatelessWidget {
   }
 }
 
-requestPermission() async {
-  Map<Permission, PermissionStatus> statuses = await [
-    Permission.storage,
-  ].request();
-  final info = statuses[Permission.storage].toString();
-  debugPrint(info);
-}
+
 
 class OriginalImageDetailImage extends StatelessWidget {
   final ImageDetail imageDetail;
@@ -551,18 +539,8 @@ class OriginalImageDetailImage extends StatelessWidget {
             IconButton(
                 // ignore: void_checks
                 onPressed: () async {
-                  //TODO: download image available at this path imageDetail.imagePath
                   File file = File(imageDetail.imagePath);
-                  final bytes = await file.readAsBytes(); // Uint8List
-                  await requestPermission();
-                  final result = await ImageGallerySaver.saveImage(bytes, name: "orignal_car");
-                  if (result['isSuccess']) {
-                    final snackBar = SnackBar(
-                      content: const Text('Saved successfully'),
-                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
+                  downloadFileImage(file, context);
                 },
                 icon: const Icon(Icons.download))
           ],
@@ -659,17 +637,7 @@ class JuxtaposeBuilder extends StatelessWidget {
               ),
               GestureDetector(
                 onTap: () async {
-                  print('download image available at this path @ response.image');
-                  // TODO: Download image response.image
-                  await requestPermission();
-                  final result = await ImageGallerySaver.saveImage(response.image, name: "image");
-                  if (result['isSuccess']) {
-                    final snackBar = SnackBar(
-                      content: const Text('Saved successfully'),
-                      action: SnackBarAction(label: 'Ok', onPressed: () => null),
-                    );
-                    ScaffoldMessenger.of(context).showSnackBar(snackBar);
-                  }
+                  downloadBytesImage(response.image, context);
                 },
                 child: Column(
                   mainAxisSize: MainAxisSize.min,

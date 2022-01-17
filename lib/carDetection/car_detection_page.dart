@@ -1,7 +1,6 @@
-
-
 import 'dart:io';
 
+import 'package:autolydemo/core/car_detection_model.dart';
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/core/scan_animation.dart';
 import 'package:flutter/material.dart';
@@ -14,22 +13,19 @@ class CarDetectionPage extends StatefulWidget {
 }
 
 class _CarDetectionPageState extends State<CarDetectionPage> {
-
   String _selectedImagePath;
   bool isProcessing = false;
-  String _model;
-
-
+  CarDetectionResponse _model;
 
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    print(_model);
     return Scaffold(
       appBar: AppBar(
         title: const Text('Car Detection'),
       ),
-      body:
-      Column(
+      body: Column(
         children: [
           SizedBox(
             height: size.height * 0.4,
@@ -40,7 +36,6 @@ class _CarDetectionPageState extends State<CarDetectionPage> {
                   child: _selectedImagePath != null ? Image.file(File(_selectedImagePath)) : const Text('Select Image'),
                 ),
                 isProcessing ? const ScanAnimationWidget() : const SizedBox(),
-
               ],
             ),
           ),
@@ -49,13 +44,7 @@ class _CarDetectionPageState extends State<CarDetectionPage> {
             width: size.width,
             color: Colors.grey,
           ),
-          Expanded(flex: 1, child: SingleChildScrollView(
-            child: _model!=null?Padding(
-              padding: const EdgeInsets.all(20.0),
-              child: Text(_model),
-            ):const SizedBox(),
-          )
-          ),
+          DetectionImage(response: _model,),
           SizedBox(
             height: 50,
             width: size.width,
@@ -63,21 +52,16 @@ class _CarDetectionPageState extends State<CarDetectionPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 IconButton(
-                  onPressed: () async{
-                    if(_selectedImagePath!=null){
+                  onPressed: () async {
+                    if (_selectedImagePath != null) {
                       isProcessing = true;
-                      _model =null;
-                      setState(() {
-
-                      });
-                      _model = await detectCarApi( imagePath: _selectedImagePath);
+                      _model = null;
+                      setState(() {});
+                      _model = await detectCarApi(imagePath: _selectedImagePath);
 
                       isProcessing = false;
-                      setState(() {
-
-                      });
+                      setState(() {});
                     }
-
                   },
                   icon: const Icon(Icons.cloud_upload),
                 ),
@@ -101,5 +85,48 @@ class _CarDetectionPageState extends State<CarDetectionPage> {
         ],
       ),
     );
+  }
+}
+
+class DetectionImage extends StatelessWidget {
+  final CarDetectionResponse response;
+
+  const DetectionImage({Key key, this.response}) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    if(response==null){
+      return Expanded(child: Container());
+    }
+    if (response.state) {
+      return Expanded(
+        child: Stack(
+          children: [
+            Image.network(
+              replaceImageCloud(response.image),
+              fit: BoxFit.cover,
+            ),
+            Positioned(
+              right: 10,bottom: 10,
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: ()async{
+                  downloadUrlImage(response.image, context);
+                },
+              ),
+            )
+          ],
+        ),
+
+      );
+    }
+
+    return Expanded(
+        child: Center(
+      child: Padding(
+        padding: const EdgeInsets.all(8.0),
+        child: Text(response.message),
+      ),
+    ));
   }
 }

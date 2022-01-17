@@ -4,7 +4,6 @@ import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/core/damage_car_model.dart';
 import 'package:autolydemo/core/scan_animation.dart';
 import 'package:autolydemo/core/text_display_image.dart';
-import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
 class CarDamageApiPage extends StatefulWidget {
@@ -50,7 +49,35 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                      ? Image.network(replaceImageCloud(_response.partsDetails.image))
+                      ? Padding(
+                          padding: const EdgeInsets.all(8.0),
+                          child: Stack(
+                            children: [
+                              Image.network(
+                                replaceImageCloud(_response.partsDetails.image),
+                                fit: BoxFit.contain,
+                              ),
+                              Positioned(
+                                left: 30,
+                                bottom: 5,
+                                child: Column(
+                                  mainAxisSize: MainAxisSize.min,
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Text(
+                                      'Damage Severity',
+                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                                    ),
+                                    Text(
+                                      _response.severity.score.toString(),
+                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        )
                       : DisplayCenterText(msg: _response.state)),
 
           ///tool box

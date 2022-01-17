@@ -48,10 +48,22 @@ class _RemoveDarknessM1State extends State<RemoveDarknessM1> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                  ? Container(
-                child: Image.memory(_response.image),
-              )
-                  : DisplayCenterText(msg: _response.msg)),
+                      ? Stack(
+                          children: [
+                            Image.memory(_response.image),
+                            Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: IconButton(
+                                onPressed: () {
+                                  downloadBytesImage(_response.image, context);
+                                },
+                                icon: const Icon(Icons.download),
+                              ),
+                            )
+                          ],
+                        )
+                      : DisplayCenterText(msg: _response.msg)),
 
           ///tool box
           SizedBox(

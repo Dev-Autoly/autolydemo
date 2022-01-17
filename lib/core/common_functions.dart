@@ -1,8 +1,11 @@
 import 'dart:typed_data';
 
 import 'package:autolydemo/core/damage_car_model.dart';
+import 'package:dio/dio.dart';
 import 'package:flutter/material.dart';
+import 'package:image_gallery_saver/image_gallery_saver.dart';
 import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
 
 import '../carNet/carnet_model.dart';
 import 'package:flutter/foundation.dart';
@@ -13,6 +16,8 @@ import 'dart:io';
 import 'package:image/image.dart' as img;
 import 'package:palette_generator/palette_generator.dart';
 import 'dart:ui' as ui;
+
+import 'car_detection_model.dart';
 
 class TorchImageResponse {
   final bool isSuccess;
@@ -103,6 +108,58 @@ Future<String> pickImage({@required imagePickerOption option}) async {
   return null;
 }
 
+
+/// request storage permission
+requestPermission() async {
+  Map<Permission, PermissionStatus> statuses = await [
+    Permission.storage,
+  ].request();
+  final info = statuses[Permission.storage].toString();
+  debugPrint(info);
+}
+
+void downloadUrlImage(String imageUrl, BuildContext context)async{
+  String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+  await requestPermission();
+  final response =
+      await Dio().get(replaceImageCloud(imageUrl), options: Options(responseType: ResponseType.bytes));
+  final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data), name: fileName);
+  if (result['isSuccess']) {
+    final snackBar = SnackBar(
+      content: const Text('Saved successfully'),
+      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+}
+
+void downloadFileImage(File imageFile, BuildContext context)async{
+  String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+  final bytes = await imageFile.readAsBytes(); // Uint8List
+  await requestPermission();
+  final result = await ImageGallerySaver.saveImage(bytes, name: fileName);
+  if (result['isSuccess']) {
+    final snackBar = SnackBar(
+      content: const Text('Saved successfully'),
+      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+}
+
+void downloadBytesImage(Uint8List bytes, BuildContext context)async{
+  String fileName = DateTime.now().millisecondsSinceEpoch.toString();
+  await requestPermission();
+  final result = await ImageGallerySaver.saveImage(bytes, name: fileName);
+  if (result['isSuccess']) {
+    final snackBar = SnackBar(
+      content: const Text('Saved successfully'),
+      action: SnackBarAction(label: 'Ok', onPressed: () => null),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+}
+
 /// api for Car Angel detection
 ///
 String getAngleFromCarnet(CarNetModel model) {
@@ -183,14 +240,13 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angle}) as
 
       return AngelApiResponse(state: state, msg: msg, image: image, fillingPercentage: fillingPercentage, predictedPosition: predictedPosition);
     }
-
     debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
+    return AngelApiResponse(state: false, msg: 'unknown error ${streamedResponse.statusCode}');
+
   } catch (e) {
     debugPrint('Error:${e.toString()}');
     return AngelApiResponse(state: false, msg: e.toString());
   }
-
-  return AngelApiResponse(state: false, msg: "unknown error");
 }
 
 /// api for Make Model recognize
@@ -278,9 +334,7 @@ Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async {
 }
 
 /// api for Car Detection
-Future<String> detectCarApi({
-  String imagePath,
-}) async {
+Future<CarDetectionResponse> detectCarApi({String imagePath,}) async {
   String carAngleApi = "https://us-central1-autoly-inc.cloudfunctions.net/detect_car_api";
   var headers = {
     'content-type': 'application/octet-stream',
@@ -314,15 +368,14 @@ Future<String> detectCarApi({
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.bytesToString();
       var jsonResponse = json.decode(respBody.toString());
-      debugPrint('final : $jsonResponse');
-      return jsonResponse.toString();
+      return CarDetectionResponse.fromJson(jsonResponse);
     }
   } catch (e) {
     print('Error:${e.toString()}');
-    return e.toString();
+    return CarDetectionResponse(state: false,message: e.toString());
   }
 
-  return 'unknown error';
+  return CarDetectionResponse(state: false,message: 'unKnow Error, Status code is no 200');
 }
 
 /// api for image enhancement
@@ -335,8 +388,8 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
   try {
     File originalFile = File(imagePath);
     img.Image image = img.decodeImage(originalFile.readAsBytesSync());
-    int oImageH = image.height;
-    int oImageW = image.width;
+
+
     img.Image thumbnail = img.copyResize(image, width: 342);
 
     int timeStamp = DateTime.now().millisecondsSinceEpoch;
@@ -346,22 +399,21 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
     final String filePath = '$dirPath/$timeStamp.png';
     File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
 
-    print(resizeFie.path);
+
 
     var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
     request.headers.addAll(headers);
-    // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
-    // request.fields["payload"] = jsonEncode(payload);
+
 
     request.files
         .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
-    print('got  ${streamedResponse.statusCode}');
+
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
 
-      // Image image = Image.memory(respBody);
+
 
       return TorchImageResponse(isSuccess: true, image: respBody);
     }
