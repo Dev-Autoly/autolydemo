@@ -108,7 +108,6 @@ Future<String> pickImage({@required imagePickerOption option}) async {
   return null;
 }
 
-
 /// request storage permission
 requestPermission() async {
   Map<Permission, PermissionStatus> statuses = await [
@@ -118,11 +117,10 @@ requestPermission() async {
   debugPrint(info);
 }
 
-void downloadUrlImage(String imageUrl, BuildContext context)async{
+void downloadUrlImage(String imageUrl, BuildContext context) async {
   String fileName = DateTime.now().millisecondsSinceEpoch.toString();
   await requestPermission();
-  final response =
-      await Dio().get(replaceImageCloud(imageUrl), options: Options(responseType: ResponseType.bytes));
+  final response = await Dio().get(replaceImageCloud(imageUrl), options: Options(responseType: ResponseType.bytes));
   final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data), name: fileName);
   if (result['isSuccess']) {
     final snackBar = SnackBar(
@@ -133,7 +131,7 @@ void downloadUrlImage(String imageUrl, BuildContext context)async{
   }
 }
 
-void downloadFileImage(File imageFile, BuildContext context)async{
+void downloadFileImage(File imageFile, BuildContext context) async {
   String fileName = DateTime.now().millisecondsSinceEpoch.toString();
   final bytes = await imageFile.readAsBytes(); // Uint8List
   await requestPermission();
@@ -147,7 +145,7 @@ void downloadFileImage(File imageFile, BuildContext context)async{
   }
 }
 
-void downloadBytesImage(Uint8List bytes, BuildContext context)async{
+void downloadBytesImage(Uint8List bytes, BuildContext context) async {
   String fileName = DateTime.now().millisecondsSinceEpoch.toString();
   await requestPermission();
   final result = await ImageGallerySaver.saveImage(bytes, name: fileName);
@@ -242,7 +240,6 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angle}) as
     }
     debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
     return AngelApiResponse(state: false, msg: 'unknown error ${streamedResponse.statusCode}');
-
   } catch (e) {
     debugPrint('Error:${e.toString()}');
     return AngelApiResponse(state: false, msg: e.toString());
@@ -334,7 +331,9 @@ Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async {
 }
 
 /// api for Car Detection
-Future<CarDetectionResponse> detectCarApi({String imagePath,}) async {
+Future<CarDetectionResponse> detectCarApi({
+  String imagePath,
+}) async {
   String carAngleApi = "https://us-central1-autoly-inc.cloudfunctions.net/detect_car_api";
   var headers = {
     'content-type': 'application/octet-stream',
@@ -372,10 +371,10 @@ Future<CarDetectionResponse> detectCarApi({String imagePath,}) async {
     }
   } catch (e) {
     print('Error:${e.toString()}');
-    return CarDetectionResponse(state: false,message: e.toString());
+    return CarDetectionResponse(state: false, message: e.toString());
   }
 
-  return CarDetectionResponse(state: false,message: 'unKnow Error, Status code is no 200');
+  return CarDetectionResponse(state: false, message: 'unKnow Error, Status code is no 200');
 }
 
 /// api for image enhancement
@@ -389,7 +388,6 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
     File originalFile = File(imagePath);
     img.Image image = img.decodeImage(originalFile.readAsBytesSync());
 
-
     img.Image thumbnail = img.copyResize(image, width: 342);
 
     int timeStamp = DateTime.now().millisecondsSinceEpoch;
@@ -399,11 +397,8 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
     final String filePath = '$dirPath/$timeStamp.png';
     File resizeFie = File(filePath)..writeAsBytesSync(img.encodePng(thumbnail));
 
-
-
     var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
     request.headers.addAll(headers);
-
 
     request.files
         .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
@@ -412,8 +407,6 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
 
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.toBytes();
-
-
 
       return TorchImageResponse(isSuccess: true, image: respBody);
     }
@@ -657,7 +650,7 @@ Future<DamageCarModel> damagesDetectionApi({String imagePath}) async {
     if (response.statusCode == 200) {
       Map<String, dynamic> jsonResponse = jsonDecode(response.body);
       print(jsonResponse);
-      return DamageCarModel.fromJson(jsonResponse,true,"response 200");
+      return DamageCarModel.fromJson(jsonResponse, true, "response 200");
     }
     return DamageCarModel(
       msg: 'State code 500',

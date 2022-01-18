@@ -191,44 +191,109 @@ class _DemoResultViewState extends State<DemoResultView> {
   }
 
   Widget getBoxImage() {
+    Size size = MediaQuery.of(context).size;
+
     if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
-      return Stack(
+      return Column(
         children: [
-          Center(
-            child: Image.network(
-              replaceImageCloud(widget.result.damageCarModel.partsDetails.image),
-            ),
-          ),
-          Positioned(
-            left: 30,
-            bottom: 5,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
-              crossAxisAlignment: CrossAxisAlignment.start,
+          SizedBox(
+            height: size.height * 0.3,
+            width: size.width,
+            child: ListView(
+              shrinkWrap: true,
+              scrollDirection: Axis.horizontal,
               children: [
-                const Text(
-                  'Damage Severity',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                SizedBox(
+                  height: size.height * 0.4,
+                  width: size.width * 0.8,
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        replaceImageCloud(widget.result.damageCarModel.partsDetails.image),
+                        fit: BoxFit.contain,
+                      ),
+                      Positioned(
+                        right: 20,
+                        bottom: 15,
+                        child: CircleAvatar(
+                          child: IconButton(
+                            onPressed: () {
+                              downloadUrlImage(widget.result.damageCarModel.partsDetails.image, context);
+                            },
+                            icon: const Icon(Icons.download),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-                Text(
-                  widget.result.damageCarModel.severity.score.toString(),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                SizedBox(
+                  height: size.height * 0.4,
+                  width: size.width * 0.8,
+                  child: Stack(
+                    children: [
+                      Image.network(
+                        replaceImageCloud(widget.result.damageCarModel.damageDetails.image),
+                        fit: BoxFit.contain,
+                      ),
+                      Positioned(
+                        right: 20,
+                        bottom: 15,
+                        child: CircleAvatar(
+                          child: IconButton(
+                            onPressed: () {
+                              downloadUrlImage(widget.result.damageCarModel.damageDetails.image, context);
+                            },
+                            icon: const Icon(Icons.download),
+                          ),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
               ],
             ),
           ),
-          Positioned(
-            right: 10,
-            bottom: 0,
-            child: Container(
-              color: Colors.white30,
-              child: IconButton(
-                icon: const Icon(Icons.download),
-                onPressed: () async {
-                  downloadUrlImage(widget.result.angelApiResponse.image, context);
-                },
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text(
+                'Damage Severity',
+                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
               ),
-            ),
+              Visibility(
+                visible: widget.result.damageCarModel.damageParts.isNotEmpty,
+                child: Row(
+                  children: [
+                    const Text(
+                      "Damage parts : ",
+                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                    ),
+                    Wrap(
+                      children: widget.result.damageCarModel.damageParts.map((e) => Text(e.toString())).toList(),
+                    )
+                  ],
+                ),
+              ),
+              Visibility(
+                visible: widget.result.damageCarModel.severity.type != null,
+                child: Text(
+                  "Type : " + widget.result.damageCarModel.severity.type.toString(),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                ),
+              ),
+              Visibility(
+                visible: widget.result.damageCarModel.severity.score != null,
+                child: Text(
+                  "Score : " + widget.result.damageCarModel.severity.score.toString(),
+                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                ),
+              ),
+              Text(
+                "State : " + widget.result.damageCarModel.state.toString(),
+                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+              ),
+            ],
           ),
         ],
       );
@@ -239,9 +304,8 @@ class _DemoResultViewState extends State<DemoResultView> {
   }
 
   Widget getAngleBoxImage() {
-
     if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
-      if(widget.result.angelApiResponse.image==null){
+      if (widget.result.angelApiResponse.image == null) {
         return Center(
           child: Text(widget.result.angelApiResponse.msg),
         );
@@ -431,7 +495,7 @@ class _DemoResultViewState extends State<DemoResultView> {
               ),
               Center(
                 child: SizedBox(
-                  height: size.height * 0.3,
+                  height: size.height * 0.42,
                   width: size.width * 0.9,
                   child: getBoxImage(),
                 ),
@@ -498,8 +562,6 @@ class TableContentRow extends StatelessWidget {
     );
   }
 }
-
-
 
 class OriginalImageDetailImage extends StatelessWidget {
   final ImageDetail imageDetail;

@@ -1,107 +1,110 @@
-import 'package:flutter/foundation.dart';
+// To parse this JSON data, do
+//
+//     final damageCarModel = damageCarModelFromJson(jsonString);
+
+import 'dart:convert';
 
 class DamageCarModel {
-  DamageDetails damageDetails;
-  List<String> damageParts;
-  DamageDetails partsDetails;
+  DamageCarModel({this.partsDetails, this.damageDetails, this.damageParts, this.state, this.severity, this.isSuccess, this.msg});
+
+  Details partsDetails;
+  Details damageDetails;
+  List<dynamic> damageParts;
+  String state;
   Severity severity;
-  bool state;
   bool isSuccess;
   String msg;
 
-  DamageCarModel({this.damageDetails, this.damageParts, this.partsDetails, this.severity, this.state,this.isSuccess,this.msg});
+  factory DamageCarModel.fromJson(Map<String, dynamic> json, bool isSuccess, String msg) => DamageCarModel(
+      partsDetails: Details.fromJson(json["parts_details"]),
+      damageDetails: Details.fromJson(json["damage_details"]),
+      damageParts: List<dynamic>.from(json["damage_parts"].map((x) => x)),
+      state: json["state"],
+      severity: Severity.fromJson(json["severity"]),
+      isSuccess: isSuccess,
+      msg: msg);
 
-  DamageCarModel.fromJson(Map<String, dynamic> json, bool isSuccess, String msg) {
-    damageDetails = json['damage_details'] != null ? DamageDetails.fromJson(json['damage_details']) : null;
-    damageParts = json['damage_parts'].cast<String>();
-    partsDetails = json['parts_details'] != null ? DamageDetails.fromJson(json['parts_details']) : null;
-    severity = json['severity'] != null ? Severity.fromJson(json['severity']) : null;
-    state = json['state'];
-    isSuccess = isSuccess;
-    msg = msg;
-  }
-
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    if (damageDetails != null) {
-      data['damage_details'] = damageDetails.toJson();
-    }
-    data['damage_parts'] = damageParts;
-    if (partsDetails != null) {
-      data['parts_details'] = partsDetails.toJson();
-    }
-    if (severity != null) {
-      data['severity'] = severity.toJson();
-    }
-    data['state'] = state;
-    return data;
-  }
+  Map<String, dynamic> toJson() => {
+        "parts_details": partsDetails.toJson(),
+        "damage_details": damageDetails.toJson(),
+        "damage_parts": List<dynamic>.from(damageParts.map((x) => x)),
+        "state": state,
+        "severity": severity.toJson(),
+      };
 }
 
-class DamageDetails {
+class Details {
+  Details({
+    this.parts,
+    this.image,
+  });
+
+  List<Part> parts;
   String image;
-  List<Parts> parts;
 
-  DamageDetails({this.image, this.parts});
+  factory Details.fromRawJson(String str) => Details.fromJson(json.decode(str));
 
-  DamageDetails.fromJson(Map<String, dynamic> json) {
-    image = json['image'];
-    if (json['parts'] != null) {
-      parts = <Parts>[];
-      json['parts'].forEach((v) { parts.add(Parts.fromJson(v)); });
-    }
-  }
+  String toRawJson() => json.encode(toJson());
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['image'] = image;
-    if (parts != null) {
-      data['parts'] = parts.map((v) => v.toJson()).toList();
-    }
-    return data;
-  }
+  factory Details.fromJson(Map<String, dynamic> json) => Details(
+        parts: List<Part>.from(json["parts"].map((x) => Part.fromJson(x))),
+        image: json["image"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "parts": List<dynamic>.from(parts.map((x) => x.toJson())),
+        "image": image,
+      };
 }
 
-class Parts {
-  List<double> box;
-  String partType;
+class Part {
+  Part({
+    this.box,
+    this.score,
+    this.partClass,
+  });
+
+  List<String> box;
   double score;
+  String partClass;
 
-  Parts({this.box, this.partType, this.score});
+  factory Part.fromRawJson(String str) => Part.fromJson(json.decode(str));
 
-  Parts.fromJson(Map<String, dynamic> json) {
-  box = json['box'].cast<double>();
-  partType = json['class'];
-  score = json['score'];
-  }
+  String toRawJson() => json.encode(toJson());
 
-  Map<String, dynamic> toJson() {
-  final Map<String, dynamic> data = <String, dynamic>{};
-  data['box'] = box;
-  data['class'] = partType;
-  data['score'] = score;
-  return data;
-  }
+  factory Part.fromJson(Map<String, dynamic> json) => Part(
+        box: List<String>.from(json["box"].map((x) => x.toString())),
+        score: json["score"].toDouble(),
+        partClass: json["class"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "box": List<dynamic>.from(box.map((x) => x)),
+        "score": score,
+        "class": partClass,
+      };
 }
 
 class Severity {
-  double score;
+  Severity({
+    this.type,
+    this.score,
+  });
+
   String type;
+  String score;
 
-  Severity({this.score, this.type});
+  factory Severity.fromRawJson(String str) => Severity.fromJson(json.decode(str));
 
-  Severity.fromJson(Map<String, dynamic> json) {
-    score = json['score'];
-    type = json['type'];
-  }
+  String toRawJson() => json.encode(toJson());
 
-  Map<String, dynamic> toJson() {
-    final Map<String, dynamic> data = <String, dynamic>{};
-    data['score'] = score;
-    data['type'] = type;
-    return data;
-  }
+  factory Severity.fromJson(Map<String, dynamic> json) => Severity(
+        type: json["type"],
+        score: json["score"] == null ? null : json["score"].toString(),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "type": type,
+        "score": score,
+      };
 }
-
-
-

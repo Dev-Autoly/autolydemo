@@ -49,45 +49,110 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                      ? Padding(
-                          padding: const EdgeInsets.all(8.0),
-                          child: Stack(
-                            children: [
-                              Image.network(
-                                replaceImageCloud(_response.partsDetails.image),
-                                fit: BoxFit.contain,
-                              ),
-                              Positioned(
-                                left: 30,
-                                bottom: 5,
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    const Text(
-                                      'Damage Severity',
-                                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                      ? Column(
+                          children: [
+                            SizedBox(
+                              height: size.height * 0.3,
+                              width: size.width,
+                              child: ListView(
+                                shrinkWrap: true,
+                                scrollDirection: Axis.horizontal,
+                                children: [
+                                  SizedBox(
+                                    height: size.height * 0.4,
+                                    width: size.width * 0.8,
+                                    child: Stack(
+                                      children: [
+                                        Image.network(
+                                          replaceImageCloud(_response.partsDetails.image),
+                                          fit: BoxFit.contain,
+                                        ),
+                                        Positioned(
+                                          right: 15,
+                                          bottom: 20,
+                                          child: CircleAvatar(
+                                            child: IconButton(
+                                              onPressed: () {
+                                                downloadUrlImage(_response.partsDetails.image, context);
+                                              },
+                                              icon: const Icon(Icons.download),
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                    Text(
-                                      _response.severity.score.toString(),
-                                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.red),
+                                  ),
+                                  SizedBox(
+                                    height: size.height * 0.4,
+                                    width: size.width * 0.8,
+                                    child: Stack(
+                                      children: [
+                                        Image.network(
+                                          replaceImageCloud(_response.damageDetails.image),
+                                          fit: BoxFit.contain,
+                                        ),
+                                        Positioned(
+                                          right: 15,
+                                          bottom: 20,
+                                          child: CircleAvatar(
+                                            child: IconButton(
+                                              onPressed: () {
+                                                downloadUrlImage(_response.damageDetails.image, context);
+                                              },
+                                              icon: const Icon(Icons.download),
+                                            ),
+                                          ),
+                                        )
+                                      ],
                                     ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Positioned(
-                                right: 10,
-                                bottom: 10,
-                                child: IconButton(
-                                  onPressed: (){
-                                    downloadUrlImage(_response.partsDetails.image, context);
-                                  },
-                                  icon: const Icon(Icons.download),
+                            ),
+                            Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                const Text(
+                                  'Damage Severity',
+                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
                                 ),
-                              )
-                            ],
-                          ),
+                                Visibility(
+                                  visible: _response.damageParts.isNotEmpty,
+                                  child: Row(
+                                    children: [
+                                      const Text(
+                                        "Damage parts : ",
+                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                                      ),
+                                      Wrap(
+                                        children: _response.damageParts.map((e) => Text(e.toString())).toList(),
+                                      )
+                                    ],
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: _response.severity.type != null,
+                                  child: Text(
+                                    "Type : " + _response.severity.type.toString(),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                                  ),
+                                ),
+                                Visibility(
+                                  visible: _response.severity.score != null,
+                                  child: Text(
+                                    "Score : " + _response.severity.score.toString(),
+                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                                  ),
+                                ),
+                                Text(
+                                  "State : " + _response.state.toString(),
+                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                                ),
+                              ],
+                            ),
+                          ],
                         )
+                      
                       : DisplayCenterText(msg: _response.msg)),
 
           ///tool box
