@@ -162,11 +162,17 @@ class _DemoResultViewState extends State<DemoResultView> {
         children: [
           Center(child: Image.memory(widget.result.carNetPostProcessResponse.imageResponse.image)),
           Positioned(
-            left: 20,
-            bottom: 10,
-            child: Text(
-              getProbability(),
-              style: const TextStyle(color: Colors.red, fontSize: 31, fontWeight: FontWeight.bold),
+            left: 12,
+            bottom: 2,
+            child: Container(
+              color: Colors.black38,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Text(
+                  getProbability(),
+                  style: const TextStyle(color: Colors.red, fontSize: 31, fontWeight: FontWeight.bold),
+                ),
+              ),
             ),
           ),
           Positioned(
@@ -193,7 +199,7 @@ class _DemoResultViewState extends State<DemoResultView> {
   Widget getBoxImage() {
     Size size = MediaQuery.of(context).size;
 
-    if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
+    if (widget.result.damageCarModel.isSuccess) {
       return Column(
         children: [
           SizedBox(
@@ -204,96 +210,114 @@ class _DemoResultViewState extends State<DemoResultView> {
               scrollDirection: Axis.horizontal,
               children: [
                 SizedBox(
-                  height: size.height * 0.4,
+                  height: size.height * 0.3,
                   width: size.width * 0.8,
                   child: Stack(
                     children: [
-                      Image.network(
-                        replaceImageCloud(widget.result.damageCarModel.partsDetails.image),
-                        fit: BoxFit.contain,
-                      ),
-                      Positioned(
-                        right: 20,
-                        bottom: 15,
-                        child: CircleAvatar(
-                          child: IconButton(
-                            onPressed: () {
-                              downloadUrlImage(widget.result.damageCarModel.partsDetails.image, context);
-                            },
-                            icon: const Icon(Icons.download),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4,right: 2),
+                          child: Image.network(
+                            replaceImageCloud(widget.result.damageCarModel.partsDetails.image),
+                            fit: BoxFit.contain,
                           ),
                         ),
-                      )
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: IconButton(
+                          onPressed: () {
+                            downloadUrlImage(widget.result.damageCarModel.partsDetails.image, context);
+                          },
+                          icon: const Icon(Icons.download),
+                        ),
+                      ),
+                       Positioned(
+                        right: 0,
+                        bottom: 8,
+                        left: 0,
+                        child: Center(child: Container(
+                            color: Colors.white24,
+                            child: const Padding(
+                              padding:  EdgeInsets.all(8.0),
+                              child:  Text('Parts',style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.bold),),
+                            ),),),
+                      ),
                     ],
                   ),
                 ),
                 SizedBox(
-                  height: size.height * 0.4,
+                  height: size.height * 0.3,
                   width: size.width * 0.8,
                   child: Stack(
                     children: [
-                      Image.network(
-                        replaceImageCloud(widget.result.damageCarModel.damageDetails.image),
-                        fit: BoxFit.contain,
-                      ),
-                      Positioned(
-                        right: 20,
-                        bottom: 15,
-                        child: CircleAvatar(
-                          child: IconButton(
-                            onPressed: () {
-                              downloadUrlImage(widget.result.damageCarModel.damageDetails.image, context);
-                            },
-                            icon: const Icon(Icons.download),
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.only(left: 4,right: 2),
+                          child: Image.network(
+                            replaceImageCloud(widget.result.damageCarModel.damageDetails.image),
+                            fit: BoxFit.contain,
                           ),
                         ),
-                      )
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 0,
+                        child: IconButton(
+                          onPressed: () {
+                            downloadUrlImage(widget.result.damageCarModel.partsDetails.image, context);
+                          },
+                          icon: const Icon(Icons.download),
+                        ),
+                      ),
+                      Positioned(
+                        right: 0,
+                        bottom: 8,
+                        left: 0,
+                        child: Center(child: Container(
+                          color: Colors.white24,
+                          child: const Padding(
+                            padding:  EdgeInsets.all(8.0),
+                            child:  Text('Damage parts',style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.bold),),
+                          ),),),
+                      ),
                     ],
                   ),
                 ),
               ],
             ),
           ),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              const Text(
-                'Damage Severity',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
-              ),
-              Visibility(
-                visible: widget.result.damageCarModel.damageParts.isNotEmpty,
-                child: Row(
+          Padding(
+            padding: const EdgeInsets.only(left: 10,right: 10),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                Row(
+                  mainAxisSize: MainAxisSize.max,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Damage parts : ",
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                    Text(
+                      "Severity Score : " +widget.result.damageCarModel.severity.score,
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
                     ),
-                    Wrap(
-                      children: widget.result.damageCarModel.damageParts.map((e) => Text(e.toString())).toList(),
-                    )
+                    Text(
+                      "Type : " + widget.result.damageCarModel.severity.type.toString(),
+                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                    ),
                   ],
                 ),
-              ),
-              Visibility(
-                visible: widget.result.damageCarModel.severity.type != null,
-                child: Text(
-                  "Type : " + widget.result.damageCarModel.severity.type.toString(),
+                Text(
+                  "State : " + widget.result.damageCarModel.state.toString(),
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
                 ),
-              ),
-              Visibility(
-                visible: widget.result.damageCarModel.severity.score != null,
-                child: Text(
-                  "Score : " + widget.result.damageCarModel.severity.score.toString(),
+                Text(
+                  "Damage parts : ${widget.result.damageCarModel.damageParts.toList().toString()}",
                   style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
                 ),
-              ),
-              Text(
-                "State : " + widget.result.damageCarModel.state.toString(),
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-              ),
-            ],
+              ],
+            ),
           ),
         ],
       );
@@ -312,21 +336,36 @@ class _DemoResultViewState extends State<DemoResultView> {
       }
       return Stack(
         children: [
-          Center(child: Image.network(replaceImageCloud(widget.result.angelApiResponse.image))),
+
+          Center(child: Column(
+            children: [
+               Text(
+                'Image validation with frame - ${widget.result.angelApiResponse.predictedPosition}',
+                style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+              ),
+              Image.network(replaceImageCloud(widget.result.angelApiResponse.image)),
+            ],
+          )),
           Positioned(
-            left: 20,
-            bottom: 10,
-            child: Column(
-              children: [
-                Text(
-                  widget.result.angelApiResponse.predictedPosition,
-                  style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+            left: 0,
+            bottom: 0,
+            child: Container(
+              color: Colors.black38,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  children: [
+                    Text(
+                      widget.result.angelApiResponse.predictedPosition.toUpperCase(),
+                      style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      '${widget.result.angelApiResponse.fillingPercentage}',
+                      style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
+                    ),
+                  ],
                 ),
-                Text(
-                  '${widget.result.angelApiResponse.fillingPercentage}',
-                  style: const TextStyle(color: Colors.red, fontSize: 20, fontWeight: FontWeight.bold),
-                ),
-              ],
+              ),
             ),
           ),
           Positioned(
@@ -448,10 +487,10 @@ class _DemoResultViewState extends State<DemoResultView> {
 
             const DividerWidget(),
 
-            const Text(
-              'Image validation with frame',
-              style: TextStyle(fontSize: 21),
-            ),
+            // const Text(
+            //   'Image validation with frame',
+            //   style: TextStyle(fontSize: 21),
+            // ),
             getAngleBoxImage(),
             const DividerWidget(),
 
@@ -495,8 +534,8 @@ class _DemoResultViewState extends State<DemoResultView> {
               ),
               Center(
                 child: SizedBox(
-                  height: size.height * 0.42,
-                  width: size.width * 0.9,
+                  height: size.height * 0.40,
+                  width: size.width-10,
                   child: getBoxImage(),
                 ),
               ),

@@ -6,7 +6,6 @@ import 'package:flutter/services.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import 'package:image/image.dart' as imglib;
-import 'dart:io';
 import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
 
@@ -50,7 +49,7 @@ class _StepGuidedCameraState extends State<StepGuidedCamera> with WidgetsBinding
         );
         _controllerInitializer = _controller.initialize();
         _controllerInitializer.whenComplete(() {});
-        _controller.lockCaptureOrientation(DeviceOrientation.landscapeRight);
+        _controller.lockCaptureOrientation(DeviceOrientation.landscapeLeft);
       });
     });
   }
@@ -78,22 +77,22 @@ class _StepGuidedCameraState extends State<StepGuidedCamera> with WidgetsBinding
   Future<String> takePicture() async {
     XFile xFile = await _controller.takePicture();
     File _file = File(xFile.path);
-    File rotateImage = await fixExifRotation(_file.path);
+    File rotateImage = await fixImage(_file);
     widget.list[currentImageIndex].imagePath = rotateImage.path;
     return xFile.path;
   }
 
-  // Future<File> fixImage(File mfile) async {
-  //   if (mfile == null) {
-  //     return null;
-  //   }
-  //   var imageBytes = mfile.readAsBytesSync();
-  //   imglib.Image image = imglib.decodeImage(imageBytes);
-  //   imglib.Image checRotateImage = imglib.bakeOrientation(image);
-  //   // imglib.Image rotateImage = imglib.copyRotate(checRotateImage, 180);
-  //
-  //   return File(mfile.path)..writeAsBytesSync(imglib.encodePng(checRotateImage));
-  // }
+  Future<File> fixImage(File mfile) async {
+    if (mfile == null) {
+      return null;
+    }
+    var imageBytes = mfile.readAsBytesSync();
+    imglib.Image image = imglib.decodeImage(imageBytes);
+    imglib.Image checRotateImage = imglib.bakeOrientation(image);
+    // imglib.Image rotateImage = imglib.copyRotate(checRotateImage, 180);
+
+    return File(mfile.path)..writeAsBytesSync(imglib.encodePng(checRotateImage));
+  }
 
   Future<File> fixExifRotation(String imagePath) async {
     final originalFile = File(imagePath);

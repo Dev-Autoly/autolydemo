@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:autolydemo/carAngle/car_angle_detection_page.dart';
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/core/damage_car_model.dart';
 import 'package:autolydemo/guided_camera/imageHolderClass.dart';
@@ -108,6 +107,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+
     return Scaffold(
       appBar: AppBar(
         title: const Text('Image Processing'),

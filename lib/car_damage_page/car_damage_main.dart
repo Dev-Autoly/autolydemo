@@ -50,57 +50,67 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
                       ? Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            SizedBox(
-                              height: size.height * 0.3,
-                              width: size.width,
+                            Expanded(
                               child: ListView(
                                 shrinkWrap: true,
                                 scrollDirection: Axis.horizontal,
                                 children: [
                                   SizedBox(
-                                    height: size.height * 0.4,
                                     width: size.width * 0.8,
                                     child: Stack(
                                       children: [
-                                        Image.network(
-                                          replaceImageCloud(_response.partsDetails.image),
-                                          fit: BoxFit.contain,
+                                        Center(
+                                          child: Padding(
+                                            padding: const EdgeInsets.only(left: 2, right: 2),
+                                            child: Image.network(
+                                              replaceImageCloud(_response.damageDetails.image),
+                                              fit: BoxFit.contain,
+                                            ),
+                                          ),
                                         ),
                                         Positioned(
-                                          right: 15,
-                                          bottom: 20,
-                                          child: CircleAvatar(
-                                            child: IconButton(
-                                              onPressed: () {
-                                                downloadUrlImage(_response.partsDetails.image, context);
-                                              },
-                                              icon: const Icon(Icons.download),
-                                            ),
+                                          bottom: 10,
+                                          right: 10,
+                                          left: 10,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text('Damage parts'),
+                                              IconButton(
+                                                icon: const Icon(Icons.download),
+                                                onPressed: () {},
+                                              ),
+                                            ],
                                           ),
                                         )
                                       ],
                                     ),
                                   ),
                                   SizedBox(
-                                    height: size.height * 0.4,
                                     width: size.width * 0.8,
                                     child: Stack(
                                       children: [
-                                        Image.network(
-                                          replaceImageCloud(_response.damageDetails.image),
-                                          fit: BoxFit.contain,
+                                        Center(
+                                          child: Image.network(
+                                            replaceImageCloud(_response.partsDetails.image),
+                                            fit: BoxFit.contain,
+                                          ),
                                         ),
                                         Positioned(
-                                          right: 15,
-                                          bottom: 20,
-                                          child: CircleAvatar(
-                                            child: IconButton(
-                                              onPressed: () {
-                                                downloadUrlImage(_response.damageDetails.image, context);
-                                              },
-                                              icon: const Icon(Icons.download),
-                                            ),
+                                          bottom: 10,
+                                          right: 10,
+                                          left: 10,
+                                          child: Row(
+                                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              const Text('Parts'),
+                                              IconButton(
+                                                icon: const Icon(Icons.download),
+                                                onPressed: () {},
+                                              ),
+                                            ],
                                           ),
                                         )
                                       ],
@@ -109,50 +119,39 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                                 ],
                               ),
                             ),
-                            Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Damage Severity',
-                                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: Colors.black),
-                                ),
-                                Visibility(
-                                  visible: _response.damageParts.isNotEmpty,
-                                  child: Row(
+                            Padding(
+                              padding: const EdgeInsets.only(left: 10,right: 10),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                mainAxisSize: MainAxisSize.min,
+                                children: [
+                                  Row(
+                                    mainAxisSize: MainAxisSize.max,
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                     children: [
-                                      const Text(
-                                        "Damage parts : ",
-                                        style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                                      Text(
+                                        "Severity Score : " + _response.severity.score.toString(),
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
                                       ),
-                                      Wrap(
-                                        children: _response.damageParts.map((e) => Text(e.toString())).toList(),
-                                      )
+                                      Text(
+                                        "Type : " + _response.severity.type.toString(),
+                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                                      ),
                                     ],
                                   ),
-                                ),
-                                Visibility(
-                                  visible: _response.severity.type != null,
-                                  child: Text(
-                                    "Type : " + _response.severity.type.toString(),
+                                  Text(
+                                    "State : " + _response.state.toString(),
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
                                   ),
-                                ),
-                                Visibility(
-                                  visible: _response.severity.score != null,
-                                  child: Text(
-                                    "Score : " + _response.severity.score.toString(),
+                                  Text(
+                                    "Damage parts : ${_response.damageParts.toList().toString()}",
                                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
                                   ),
-                                ),
-                                Text(
-                                  "State : " + _response.state.toString(),
-                                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                                ),
-                              ],
+                                ],
+                              ),
                             ),
                           ],
                         )
-                      
                       : DisplayCenterText(msg: _response.msg)),
 
           ///tool box
