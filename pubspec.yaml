@@ -36,6 +36,7 @@ dependencies:
   palette_generator: ^0.3.2
   image_gallery_saver: ^1.7.1
   permission_handler: ^8.3.0
+  image_size_getter: ^1.0.0
 
 
 

@@ -6,14 +6,14 @@ import 'package:autolydemo/core/text_display_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-class DarknessTFM2Page extends StatefulWidget {
-  const DarknessTFM2Page({Key key}) : super(key: key);
+class RemoveDarknessM1 extends StatefulWidget {
+  const RemoveDarknessM1({Key key}) : super(key: key);
 
   @override
-  State<DarknessTFM2Page> createState() => _DarknessTFM2PageState();
+  State<RemoveDarknessM1> createState() => _RemoveDarknessM1State();
 }
 
-class _DarknessTFM2PageState extends State<DarknessTFM2Page> {
+class _RemoveDarknessM1State extends State<RemoveDarknessM1> {
   String _selectedImagePath;
   bool isProcessing = false;
   TorchImageResponse _response;
@@ -23,7 +23,7 @@ class _DarknessTFM2PageState extends State<DarknessTFM2Page> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Darkness Removal Option 1'),
+        title: const Text('Darkness remover - No light'),
       ),
       body: Column(
         children: [
@@ -78,7 +78,7 @@ class _DarknessTFM2PageState extends State<DarknessTFM2Page> {
                       isProcessing = true;
                       _response = null;
                       setState(() {});
-                      _response = await darknessTFM2(imagePath: _selectedImagePath);
+                      _response = await removeDarknessM1(imagePath: _selectedImagePath);
                       isProcessing = false;
                       setState(() {});
                     }

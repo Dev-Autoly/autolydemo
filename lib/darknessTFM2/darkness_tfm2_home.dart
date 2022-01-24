@@ -1,5 +1,3 @@
-
-
 import 'dart:io';
 
 import 'package:autolydemo/core/common_functions.dart';
@@ -8,14 +6,15 @@ import 'package:autolydemo/core/text_display_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-class EnhanceImgTFM1Page extends StatefulWidget {
-  const EnhanceImgTFM1Page({Key key}) : super(key: key);
+
+class DarknessTFM2Page extends StatefulWidget {
+  const DarknessTFM2Page({Key key}) : super(key: key);
 
   @override
-  State<EnhanceImgTFM1Page> createState() => _EnhanceImgTFM1PageState();
+  State<DarknessTFM2Page> createState() => _DarknessTFM2PageState();
 }
 
-class _EnhanceImgTFM1PageState extends State<EnhanceImgTFM1Page> {
+class _DarknessTFM2PageState extends State<DarknessTFM2Page> {
   String _selectedImagePath;
   bool isProcessing = false;
   TorchImageResponse _response;
@@ -25,7 +24,7 @@ class _EnhanceImgTFM1PageState extends State<EnhanceImgTFM1Page> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Image Enhancement Option 2'),
+        title: const Text('Darkness remover - Low light'),
       ),
       body: Column(
         children: [
@@ -50,22 +49,22 @@ class _EnhanceImgTFM1PageState extends State<EnhanceImgTFM1Page> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                  ? Stack(
-                    children: [
-                      Image.memory(_response.image),
-                      Positioned(
-                        right: 10,
-                        bottom: 10,
-                        child: IconButton(
-                          onPressed: (){
-                            downloadBytesImage(_response.image, context);
-                          },
-                          icon: const Icon(Icons.download),
-                        ),
-                      )
-                    ],
-                  )
-                  : DisplayCenterText(msg: _response.msg)),
+                      ? Stack(
+                          children: [
+                            Image.memory(_response.image),
+                            Positioned(
+                              right: 10,
+                              bottom: 10,
+                              child: IconButton(
+                                onPressed: () {
+                                  downloadBytesImage(_response.image, context);
+                                },
+                                icon: const Icon(Icons.download),
+                              ),
+                            )
+                          ],
+                        )
+                      : DisplayCenterText(msg: _response.msg)),
 
           ///tool box
           SizedBox(
@@ -80,7 +79,7 @@ class _EnhanceImgTFM1PageState extends State<EnhanceImgTFM1Page> {
                       isProcessing = true;
                       _response = null;
                       setState(() {});
-                      _response = await enhanceImgTFM1(imagePath: _selectedImagePath);
+                      _response = await darknessTFM2(imagePath: _selectedImagePath);
                       isProcessing = false;
                       setState(() {});
                     }

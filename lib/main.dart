@@ -1,6 +1,6 @@
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/guided_camera/imageHolderClass.dart';
-import 'package:autolydemo/removeDarknessM1/removeDarknessM1Home.dart';
+import 'package:autolydemo/removeDarknessM1/remove_darkness_m1_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:provider/provider.dart';
@@ -9,9 +9,9 @@ import 'carAngle/car_angle_detection_page.dart';
 import 'carDetection/car_detection_page.dart';
 import 'carNet/carnet_main_widget.dart';
 import 'car_damage_page/car_damage_main.dart';
-import 'darknessTFM2/darknessTFM2Home.dart';
+import 'darknessTFM2/darkness_tfm2_home.dart';
 import 'demo_main_widgets/demo_inprogress_widget.dart';
-import 'enhanceImgTFM1Widgets/enhanceingImageTFM1Widget.dart';
+import 'image_resize/resize_image.dart';
 import 'guided_camera/basic_view_model.dart';
 import 'guided_camera/step_exterior_photo.dart';
 import 'image_enhancement/image_enhancement_page.dart';
@@ -116,8 +116,8 @@ class MyHomePage extends StatelessWidget {
           ),
 
           ListItemWidget(
-            title: 'Image Enhancement Option 1',
-            description: 'Image Enhancement Option 1',
+            title: 'Image Enhancement',
+            description: 'Image enhancement',
             onTap: () async {
               Navigator.push(
                 context,
@@ -141,20 +141,20 @@ class MyHomePage extends StatelessWidget {
           //   },
           // ),
           ListItemWidget(
-            title: 'Image Enhancement Option 2',
-            description: 'Image Enhancement Option 2',
+            title: 'Image Resize',
+            description: 'Image resize',
             onTap: () async {
               Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => const EnhanceImgTFM1Page(),
+                  builder: (context) => const ResizeImagePage(),
                 ),
               );
             },
           ),
 
           ListItemWidget(
-            title: 'Darkness Removal Option 1',
+            title: 'Darkness remover - Low light',
             description: 'This API removes the darkness from image.',
             onTap: () async {
               Navigator.push(
@@ -166,7 +166,7 @@ class MyHomePage extends StatelessWidget {
             },
           ),
           ListItemWidget(
-            title: 'Darkness Removal Option 2',
+            title: 'Darkness remover - No light',
             description: 'This API removes the darkness from image.',
             onTap: () async {
               Navigator.push(
@@ -179,7 +179,7 @@ class MyHomePage extends StatelessWidget {
           ),
 
           ListItemWidget(
-            title: 'Car Damage Prediction',
+            title: 'Damage Recognition',
             description: 'This API predict damage to car parts',
             onTap: () async {
               Navigator.push(

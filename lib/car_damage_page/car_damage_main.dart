@@ -24,7 +24,7 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Car Damage Prediction'),
+        title: const Text('Damage Recognition'),
       ),
       body: Column(
         children: [
@@ -71,7 +71,7 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                                           ),
                                         ),
                                         Positioned(
-                                          bottom: 10,
+                                          bottom: 0,
                                           right: 10,
                                           left: 10,
                                           child: Row(
@@ -80,7 +80,9 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                                               const Text('Damage parts'),
                                               IconButton(
                                                 icon: const Icon(Icons.download),
-                                                onPressed: () {},
+                                                onPressed: () {
+                                                  downloadUrlImage(replaceImageCloud(_response.damageDetails.image), context);
+                                                },
                                               ),
                                             ],
                                           ),
@@ -99,7 +101,7 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                                           ),
                                         ),
                                         Positioned(
-                                          bottom: 10,
+                                          bottom: 0,
                                           right: 10,
                                           left: 10,
                                           child: Row(
@@ -108,7 +110,9 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                                               const Text('Parts'),
                                               IconButton(
                                                 icon: const Icon(Icons.download),
-                                                onPressed: () {},
+                                                onPressed: () {
+                                                  downloadUrlImage(replaceImageCloud(_response.partsDetails.image), context);
+                                                },
                                               ),
                                             ],
                                           ),
@@ -119,37 +123,37 @@ class _CarDamageApiPageState extends State<CarDamageApiPage> {
                                 ],
                               ),
                             ),
-                            Padding(
-                              padding: const EdgeInsets.only(left: 10,right: 10),
-                              child: Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                mainAxisSize: MainAxisSize.min,
-                                children: [
-                                  Row(
-                                    mainAxisSize: MainAxisSize.max,
-                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                    children: [
-                                      Text(
-                                        "Severity Score : " + _response.severity.score.toString(),
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                                      ),
-                                      Text(
-                                        "Type : " + _response.severity.type.toString(),
-                                        style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                                      ),
-                                    ],
-                                  ),
-                                  Text(
-                                    "State : " + _response.state.toString(),
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                                  ),
-                                  Text(
-                                    "Damage parts : ${_response.damageParts.toList().toString()}",
-                                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                                  ),
-                                ],
-                              ),
-                            ),
+                            // Padding(
+                            //   padding: const EdgeInsets.only(left: 10,right: 10),
+                            //   child: Column(
+                            //     crossAxisAlignment: CrossAxisAlignment.start,
+                            //     mainAxisSize: MainAxisSize.min,
+                            //     children: [
+                            //       Row(
+                            //         mainAxisSize: MainAxisSize.max,
+                            //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            //         children: [
+                            //           Text(
+                            //             "Severity Score : " + _response.severity.score.toString(),
+                            //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                            //           ),
+                            //           Text(
+                            //             "Type : " + _response.severity.type.toString(),
+                            //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                            //           ),
+                            //         ],
+                            //       ),
+                            //       Text(
+                            //         "State : " + _response.state.toString(),
+                            //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                            //       ),
+                            //       Text(
+                            //         "Damage parts : ${_response.damageParts.toList().toString()}",
+                            //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+                            //       ),
+                            //     ],
+                            //   ),
+                            // ),
                           ],
                         )
                       : DisplayCenterText(msg: _response.msg)),

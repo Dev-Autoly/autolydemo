@@ -1,3 +1,5 @@
+
+
 import 'dart:io';
 
 import 'package:autolydemo/core/common_functions.dart';
@@ -6,14 +8,14 @@ import 'package:autolydemo/core/text_display_image.dart';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 
-class RemoveDarknessM1 extends StatefulWidget {
-  const RemoveDarknessM1({Key key}) : super(key: key);
+class ResizeImagePage extends StatefulWidget {
+  const ResizeImagePage({Key key}) : super(key: key);
 
   @override
-  State<RemoveDarknessM1> createState() => _RemoveDarknessM1State();
+  State<ResizeImagePage> createState() => _ResizeImagePageState();
 }
 
-class _RemoveDarknessM1State extends State<RemoveDarknessM1> {
+class _ResizeImagePageState extends State<ResizeImagePage> {
   String _selectedImagePath;
   bool isProcessing = false;
   TorchImageResponse _response;
@@ -23,7 +25,7 @@ class _RemoveDarknessM1State extends State<RemoveDarknessM1> {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Darkness Removal Option 2'),
+        title: const Text('Image Resize'),
       ),
       body: Column(
         children: [
@@ -48,22 +50,22 @@ class _RemoveDarknessM1State extends State<RemoveDarknessM1> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                      ? Stack(
-                          children: [
-                            Image.memory(_response.image),
-                            Positioned(
-                              right: 10,
-                              bottom: 10,
-                              child: IconButton(
-                                onPressed: () {
-                                  downloadBytesImage(_response.image, context);
-                                },
-                                icon: const Icon(Icons.download),
-                              ),
-                            )
-                          ],
-                        )
-                      : DisplayCenterText(msg: _response.msg)),
+                  ? Stack(
+                    children: [
+                      Image.memory(_response.image),
+                      Positioned(
+                        right: 10,
+                        bottom: 10,
+                        child: IconButton(
+                          onPressed: (){
+                            downloadBytesImage(_response.image, context);
+                          },
+                          icon: const Icon(Icons.download),
+                        ),
+                      )
+                    ],
+                  )
+                  : DisplayCenterText(msg: _response.msg)),
 
           ///tool box
           SizedBox(
@@ -78,7 +80,7 @@ class _RemoveDarknessM1State extends State<RemoveDarknessM1> {
                       isProcessing = true;
                       _response = null;
                       setState(() {});
-                      _response = await removeDarknessM1(imagePath: _selectedImagePath);
+                      _response = await enhanceImgTFM1(imagePath: _selectedImagePath);
                       isProcessing = false;
                       setState(() {});
                     }

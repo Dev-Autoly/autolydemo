@@ -1,11 +1,15 @@
 import 'dart:io';
+import 'dart:typed_data';
 
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:flutter/material.dart';
+import 'package:image_size_getter/image_size_getter.dart' as sizeGetter;
 import 'package:juxtapose/juxtapose.dart';
+import 'package:path_provider/path_provider.dart';
 
 class DemoResultView extends StatefulWidget {
   final ConsolidateResult result;
+
   const DemoResultView({Key key, this.result}) : super(key: key);
 
   @override
@@ -216,7 +220,7 @@ class _DemoResultViewState extends State<DemoResultView> {
                     children: [
                       Center(
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 4,right: 2),
+                          padding: const EdgeInsets.only(left: 4, right: 2),
                           child: Image.network(
                             replaceImageCloud(widget.result.damageCarModel.partsDetails.image),
                             fit: BoxFit.contain,
@@ -233,16 +237,22 @@ class _DemoResultViewState extends State<DemoResultView> {
                           icon: const Icon(Icons.download),
                         ),
                       ),
-                       Positioned(
+                      Positioned(
                         right: 0,
                         bottom: 8,
                         left: 0,
-                        child: Center(child: Container(
+                        child: Center(
+                          child: Container(
                             color: Colors.white24,
                             child: const Padding(
-                              padding:  EdgeInsets.all(8.0),
-                              child:  Text('Parts',style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.bold),),
-                            ),),),
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Parts',
+                                style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -254,7 +264,7 @@ class _DemoResultViewState extends State<DemoResultView> {
                     children: [
                       Center(
                         child: Padding(
-                          padding: const EdgeInsets.only(left: 4,right: 2),
+                          padding: const EdgeInsets.only(left: 4, right: 2),
                           child: Image.network(
                             replaceImageCloud(widget.result.damageCarModel.damageDetails.image),
                             fit: BoxFit.contain,
@@ -266,7 +276,7 @@ class _DemoResultViewState extends State<DemoResultView> {
                         bottom: 0,
                         child: IconButton(
                           onPressed: () {
-                            downloadUrlImage(widget.result.damageCarModel.partsDetails.image, context);
+                            downloadUrlImage(widget.result.damageCarModel.damageDetails.image, context);
                           },
                           icon: const Icon(Icons.download),
                         ),
@@ -275,12 +285,18 @@ class _DemoResultViewState extends State<DemoResultView> {
                         right: 0,
                         bottom: 8,
                         left: 0,
-                        child: Center(child: Container(
-                          color: Colors.white24,
-                          child: const Padding(
-                            padding:  EdgeInsets.all(8.0),
-                            child:  Text('Damage parts',style: TextStyle(fontSize: 16,color: Colors.black,fontWeight: FontWeight.bold),),
-                          ),),),
+                        child: Center(
+                          child: Container(
+                            color: Colors.white24,
+                            child: const Padding(
+                              padding: EdgeInsets.all(8.0),
+                              child: Text(
+                                'Damage parts',
+                                style: TextStyle(fontSize: 16, color: Colors.black, fontWeight: FontWeight.bold),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
                     ],
                   ),
@@ -288,37 +304,37 @@ class _DemoResultViewState extends State<DemoResultView> {
               ],
             ),
           ),
-          Padding(
-            padding: const EdgeInsets.only(left: 10,right: 10),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Row(
-                  mainAxisSize: MainAxisSize.max,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      "Severity Score : " +widget.result.damageCarModel.severity.score,
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                    ),
-                    Text(
-                      "Type : " + widget.result.damageCarModel.severity.type.toString(),
-                      style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                    ),
-                  ],
-                ),
-                Text(
-                  "State : " + widget.result.damageCarModel.state.toString(),
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                ),
-                Text(
-                  "Damage parts : ${widget.result.damageCarModel.damageParts.toList().toString()}",
-                  style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
-                ),
-              ],
-            ),
-          ),
+          // Padding(
+          //   padding: const EdgeInsets.only(left: 10, right: 10),
+          //   child: Column(
+          //     crossAxisAlignment: CrossAxisAlignment.start,
+          //     mainAxisSize: MainAxisSize.min,
+          //     children: [
+          //       Row(
+          //         mainAxisSize: MainAxisSize.max,
+          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          //         children: [
+          //           Text(
+          //             "Severity Score : " + widget.result.damageCarModel.severity.score,
+          //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+          //           ),
+          //           Text(
+          //             "Type : " + widget.result.damageCarModel.severity.type.toString(),
+          //             style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+          //           ),
+          //         ],
+          //       ),
+          //       Text(
+          //         "State : " + widget.result.damageCarModel.state.toString(),
+          //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+          //       ),
+          //       Text(
+          //         "Damage parts : ${widget.result.damageCarModel.damageParts.toList().toString()}",
+          //         style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 15, color: Colors.red),
+          //       ),
+          //     ],
+          //   ),
+          // ),
         ],
       );
     }
@@ -328,7 +344,7 @@ class _DemoResultViewState extends State<DemoResultView> {
   }
 
   Widget getAngleBoxImage() {
-    if (widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
+    if (widget.result.carNetPostProcessResponse != null && widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
       if (widget.result.angelApiResponse.image == null) {
         return Center(
           child: Text(widget.result.angelApiResponse.msg),
@@ -336,10 +352,10 @@ class _DemoResultViewState extends State<DemoResultView> {
       }
       return Stack(
         children: [
-
-          Center(child: Column(
+          Center(
+              child: Column(
             children: [
-               Text(
+              Text(
                 'Image validation with frame - ${widget.result.angelApiResponse.predictedPosition}',
                 style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
               ),
@@ -371,6 +387,78 @@ class _DemoResultViewState extends State<DemoResultView> {
           Positioned(
             right: 10,
             bottom: 0,
+            child: Container(
+              color: Colors.white30,
+              child: IconButton(
+                icon: const Icon(Icons.download),
+                onPressed: () async {
+                  downloadUrlImage(widget.result.angelApiResponse.image, context);
+                },
+              ),
+            ),
+          ),
+        ],
+      );
+    }
+    return const Center(
+      child: Text('Error recognizing image'),
+    );
+  }
+
+  int getDimension() {
+    final memoryImageSize = sizeGetter.ImageSizeGetter.getSize(sizeGetter.MemoryInput(widget.result.enhanceImgTFM1Response.image));
+    double dim =
+        (memoryImageSize.height * memoryImageSize.width) / (widget.result.imageDetail.imageHeight * widget.result.imageDetail.imageWidth);
+    return dim.round();
+  }
+
+  int getFileSize() {
+    File fileOriginal = File(widget.result.imageDetail.imagePath);
+    double sizeTotal = (widget.result.enhanceImgTFM1Response.image.lengthInBytes / fileOriginal.readAsBytesSync().lengthInBytes);
+    return sizeTotal.round();
+  }
+
+  Widget getResizeBoxImage() {
+    if (widget.result.carNetPostProcessResponse != null && widget.result.carNetPostProcessResponse.imageResponse.isSuccess) {
+      if (widget.result.enhanceImgTFM1Response.image == null) {
+        return Center(
+          child: Text(widget.result.enhanceImgTFM1Response.msg),
+        );
+      }
+      return Stack(
+        children: [
+          Center(
+              child: Column(
+            children: [
+              Image.memory(widget.result.enhanceImgTFM1Response.image),
+            ],
+          )),
+          Positioned(
+            left: 0,
+            bottom: 11,
+            child: Container(
+              color: Colors.black38,
+              child: Padding(
+                padding: const EdgeInsets.all(8.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Resolution increased by ${getDimension()}x',
+                      style: const TextStyle(color: Colors.red, fontSize: 17, fontWeight: FontWeight.bold),
+                    ),
+                    Text(
+                      'File size increased by ${getFileSize()}x',
+                      style: const TextStyle(color: Colors.red, fontSize: 17, fontWeight: FontWeight.bold),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+          Positioned(
+            right: 10,
+            bottom: 10,
             child: Container(
               color: Colors.white30,
               child: IconButton(
@@ -494,48 +582,58 @@ class _DemoResultViewState extends State<DemoResultView> {
             getAngleBoxImage(),
             const DividerWidget(),
 
-            /// Image enhancement - Option 1
-            JuxtaposeBuilder(
-              response: widget.result.enhanceImgTFM1Response,
-              modelName: 'Image enhancement Option 1',
-              imageDetail: widget.result.imageDetail,
-            ),
-            const DividerWidget(),
-
-            /// Image enhancement - Option 2
+            /// Image Enhancement
             JuxtaposeBuilder(
               response: widget.result.imageTorchApiResponse,
-              modelName: 'Image enhancement  Option 2',
+              modelName: 'Image Enhancement',
               imageDetail: widget.result.imageDetail,
             ),
             const DividerWidget(),
 
-            /// Darkness remover Option 1
-            JuxtaposeBuilder(
-              response: widget.result.darknessTFM2Response,
-              modelName: 'Darkness remover Option 1',
-              imageDetail: widget.result.imageDetail,
-            ),
-            const DividerWidget(),
-
-            /// Darkness remover Option 2
-            JuxtaposeBuilder(
-              response: widget.result.removeDarknessM1Response,
-              modelName: 'Darkness remover Option 2',
-              imageDetail: widget.result.imageDetail,
-            ),
-            const DividerWidget(),
-
-            /// Damage detection
+            /// Image Resize
+            /// Damage Recognition
             Column(children: [
               const Text(
-                'Damage Car Detection',
+                'Image Resize',
+                style: TextStyle(fontSize: 21),
+              ),
+              Center(
+                child: SizedBox(height: size.height * 0.40, width: size.width - 10, child: getResizeBoxImage()),
+              ),
+            ]),
+            // JuxtaposeBuilder(
+            //   response: widget.result.enhanceImgTFM1Response,
+            //   modelName: 'Image Resize',
+            //   imageDetail: widget.result.imageDetail,
+            // ),
+            const DividerWidget(),
+
+            /// Darkness remover Low Light
+            JuxtaposeBuilder(
+              response: widget.result.darknessTFM2Response,
+              modelName: 'Darkness remover - Low light',
+              imageDetail: widget.result.imageDetail,
+            ),
+            const DividerWidget(),
+
+            /// Darkness remover No Light
+            JuxtaposeBuilder(
+              response: widget.result.removeDarknessM1Response,
+              modelName: 'Darkness remover - No light',
+              imageDetail: widget.result.imageDetail,
+            ),
+            const DividerWidget(),
+
+            /// Damage Recognition
+            Column(children: [
+              const Text(
+                'Damage Recognition',
                 style: TextStyle(fontSize: 21),
               ),
               Center(
                 child: SizedBox(
                   height: size.height * 0.40,
-                  width: size.width-10,
+                  width: size.width - 10,
                   child: getBoxImage(),
                 ),
               ),
@@ -569,6 +667,7 @@ class TableContentRow extends StatelessWidget {
   final String title;
   final String result;
   final String probability;
+
   const TableContentRow({Key key, this.title, this.result, this.probability}) : super(key: key);
 
   @override

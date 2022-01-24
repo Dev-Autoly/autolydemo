@@ -151,7 +151,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
                       isProcessing = true;
                       _model = null;
                       setState(() {});
-                      AngelApiResponse response = await uploadFileForAngle(imagePath: _selectedImagePath, angle: _selectedValue);
+                      AngelApiResponse response = await uploadFileForAngle(imagePath: _selectedImagePath, angleOptional: _selectedValue);
                       _model = response;
                       isProcessing = false;
                       setState(() {});

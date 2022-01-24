@@ -298,7 +298,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
             FutureBuilder<TorchImageResponse>(
               future: _imageTorchApi,
               builder: (context, snapshot) {
-                String msg = 'Enhancing image Option 1';
+                String msg = 'Image Enhancement';
                 if (snapshot.hasError) {
                   return ProcessTextWidget(
                     msg: msg,
@@ -335,7 +335,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
             FutureBuilder<TorchImageResponse>(
               future: _enhanceImgTFM1,
               builder: (context, snapshot) {
-                String msg = 'Enhancing image Option2';
+                String msg = 'Image resize';
 
                 if (snapshot.hasError) {
                   return ProcessTextWidget(
@@ -349,6 +349,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                   if (snapshot.data.isSuccess) {
                     _enhanceImgTFM1Data = snapshot.data;
                     isAllApiSuccessfull = updateApiStatus();
+
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -373,7 +374,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
             FutureBuilder<TorchImageResponse>(
               future: _removeDarknessM1,
               builder: (context, snapshot) {
-                String msg = 'Removing darkness option 1';
+                String msg = 'Darkness remover - Low light';
                 if (snapshot.hasError) {
                   return ProcessTextWidget(
                     msg: msg,
@@ -409,7 +410,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
             FutureBuilder<TorchImageResponse>(
               future: _darknessTFM2,
               builder: (context, snapshot) {
-                String msg = 'Removing darkness option 2';
+                String msg = 'Darkness remover - No light';
                 if (snapshot.hasError) {
                   return ProcessTextWidget(
                     msg: msg,
@@ -445,7 +446,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
             FutureBuilder<DamageCarModel>(
               future: _damageDetail,
               builder: (context, snapshot) {
-                String msg = 'Car damage detetcion';
+                String msg = 'Damage Recognition';
                 if (snapshot.hasError) {
                   return ProcessTextWidget(
                     msg: msg,
