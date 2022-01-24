@@ -378,6 +378,7 @@ Future<CarDetectionResponse> detectCarApi({
     if (streamedResponse.statusCode == 200) {
       final respBody = await streamedResponse.stream.bytesToString();
       var jsonResponse = json.decode(respBody.toString());
+      print(jsonResponse);
       return CarDetectionResponse.fromJson(jsonResponse);
     }
   } catch (e) {

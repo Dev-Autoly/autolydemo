@@ -8,6 +8,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:image/image.dart' as imglib;
 import 'package:exif/exif.dart';
 import 'package:image/image.dart' as img;
+import 'package:native_device_orientation/native_device_orientation.dart';
 
 import 'imageHolderClass.dart';
 import 'image_selector.dart';
@@ -199,259 +200,279 @@ class _StepGuidedCameraState extends State<StepGuidedCamera> with WidgetsBinding
       DeviceOrientation.landscapeLeft,
       DeviceOrientation.landscapeRight,
     ]);
-    return WillPopScope(
-      onWillPop: () {
-        Navigator.of(context).pop(widget.list);
-        return Future.value(true);
-      },
-      child: Scaffold(
-        body: OrientationBuilder(builder: (context, orientation) {
-          return SizedBox(
-            height: size.height,
-            width: size.width,
-            child: Stack(
-              children: [
-                // camera preview
-                SizedBox(
-                  height: size.height,
-                  width: size.width,
-                  child: FutureBuilder(
-                    future: _controllerInitializer,
-                    builder: (context, snapshot) {
-                      if (snapshot.connectionState == ConnectionState.done) {
-                        // return RotatedBox(quarterTurns: 2, child: CameraPreview(_controller));
-                        return RotatedBox(
-                          quarterTurns: Platform.isIOS ? 4 : 4,
-                          child: AspectRatio(
-                            aspectRatio: size.width / size.height,
-                            child: Transform(
-                              alignment: Alignment.center,
-                              transform: Matrix4.diagonal3Values(1.0, 1.0, 1),
-                              child: CameraPreview(_controller),
-                            ),
-                          ),
-                        );
-                      } else {
-                        return Center(
-                          child: Container(),
-                        );
-                      }
-                    },
-                  ),
-                ),
 
-                // image outline preview
-                Positioned(
-                  left: devicePadding.left,
-                  right: devicePadding.right,
-                  top: devicePadding.top,
-                  bottom: devicePadding.bottom,
-                  child: Container(
-                      margin: const EdgeInsets.all(20),
-                      child: SvgPicture.asset(
-                        widget.list[currentImageIndex].guideImagePath,
-                        fit: BoxFit.contain,
-                        color: Colors.white,
-                      )),
-                ),
+    return Center(
+      child: WillPopScope(
+        onWillPop: () {
+          Navigator.of(context).pop(widget.list);
+          return Future.value(true);
+        },
+        child: Scaffold(
+          body: NativeDeviceOrientationReader(useSensor: true,builder: (context) {
 
-                // widget to hide on tap
-
-                // widget to tap for hiding all button
-                GestureDetector(
-                  onTap: () {
-                    isHidden = !isHidden;
-                    setState(() {});
-                  },
-                  child: Container(
-                    height: size.height,
-                    width: size.width,
-                    color: Colors.transparent,
-                  ),
-                ),
-
-                // small preview of guideline images
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  bottom: isHidden ? -(size.height * 0.15) : 5,
-                  left: 0,
-                  right: 0,
-                  child: Center(
-                    child: Container(
-                      alignment: Alignment.center,
-                      height: size.height * 0.15,
+            return OrientationBuilder(builder: (context, orientation) {
+              final orientation = NativeDeviceOrientationReader.orientation(context);
+              print('orientation > $orientation');
+              if (orientation == NativeDeviceOrientation.landscapeRight) {
+                _controller.lockCaptureOrientation(DeviceOrientation.landscapeRight);
+              }
+              if (orientation == NativeDeviceOrientation.landscapeLeft) {
+                _controller.lockCaptureOrientation(DeviceOrientation.landscapeLeft);
+              }
+              return SizedBox(
+                height: size.height,
+                width: size.width,
+                child: Stack(
+                  children: [
+                    // camera preview
+                    SizedBox(
+                      height: size.height,
                       width: size.width,
-                      child: PageView.builder(
-                        scrollDirection: Axis.horizontal,
-                        controller: scrollController,
-                        onPageChanged: (index) {
-                          currentImageIndex = index;
-                          setState(() {});
+                      child: FutureBuilder(
+                        future: _controllerInitializer,
+                        builder: (context, snapshot) {
+                          if (snapshot.connectionState == ConnectionState.done) {
+                            // return RotatedBox(quarterTurns: 2, child: CameraPreview(_controller));
+                            return RotatedBox(
+                              quarterTurns: Platform.isIOS ? 4 : 4,
+                              child: AspectRatio(
+                                aspectRatio: size.width / size.height,
+                                child: Transform(
+                                  alignment: Alignment.center,
+                                  transform: Matrix4.diagonal3Values(1.0, 1.0, 1),
+                                  child: CameraPreview(_controller),
+                                ),
+                              ),
+                            );
+                          } else {
+                            return Center(
+                              child: Container(),
+                            );
+                          }
                         },
-                        itemCount: widget.list.length,
-                        itemBuilder: (context, index) {
-                          return GestureDetector(
-                            onTap: () {
+                      ),
+                    ),
+
+                    // image outline preview
+                    Positioned(
+                      left: devicePadding.left,
+                      right: devicePadding.right,
+                      top: devicePadding.top,
+                      bottom: devicePadding.bottom,
+                      child: Container(
+                          margin: const EdgeInsets.all(20),
+                          child: SvgPicture.asset(
+                            widget.list[currentImageIndex].guideImagePath,
+                            fit: BoxFit.contain,
+                            color: Colors.white,
+                          )),
+                    ),
+
+                    // widget to hide on tap
+
+                    // widget to tap for hiding all button
+                    GestureDetector(
+                      onTap: () {
+                        isHidden = !isHidden;
+                        setState(() {});
+                      },
+                      child: Container(
+                        height: size.height,
+                        width: size.width,
+                        color: Colors.transparent,
+                      ),
+                    ),
+
+                    // small preview of guideline images
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 300),
+                      bottom: isHidden ? -(size.height * 0.15) : 5,
+                      left: 0,
+                      right: 0,
+                      child: Center(
+                        child: Container(
+                          alignment: Alignment.center,
+                          height: size.height * 0.15,
+                          width: size.width,
+                          child: PageView.builder(
+                            scrollDirection: Axis.horizontal,
+                            controller: scrollController,
+                            onPageChanged: (index) {
                               currentImageIndex = index;
                               setState(() {});
                             },
-                            child: Container(
-                              margin: const EdgeInsets.all(8.0),
-                              child: Stack(
-                                children: [
-                                  Center(
-                                    child: Container(
-                                      height: size.height * 0.1,
-                                      width: currentImageIndex == index ? size.height * 0.3 : size.height * 0.1,
-                                      decoration: BoxDecoration(
-                                        color: Colors.white,
-                                        border: Border.all(color: widget.list[index].imagePath != null ? Colors.green : Colors.black, width: 1),
+                            itemCount: widget.list.length,
+                            itemBuilder: (context, index) {
+                              return GestureDetector(
+                                onTap: () {
+                                  currentImageIndex = index;
+                                  setState(() {});
+                                },
+                                child: Container(
+                                  margin: const EdgeInsets.all(8.0),
+                                  child: Stack(
+                                    children: [
+                                      Center(
+                                        child: Container(
+                                          height: size.height * 0.1,
+                                          width: currentImageIndex == index ? size.height * 0.3 : size.height * 0.1,
+                                          decoration: BoxDecoration(
+                                            color: Colors.white,
+                                            border: Border.all(
+                                                color: widget.list[index].imagePath != null ? Colors.green : Colors.black, width: 1),
+                                          ),
+                                          padding: const EdgeInsets.all(4.0),
+                                          child: SvgPicture.asset(
+                                            widget.list[index].guideImagePath,
+                                            fit: BoxFit.contain,
+                                          ),
+                                        ),
                                       ),
-                                      padding: const EdgeInsets.all(4.0),
-                                      child: SvgPicture.asset(
-                                        widget.list[index].guideImagePath,
-                                        fit: BoxFit.contain,
-                                      ),
-                                    ),
+                                      widget.list[index].imagePath != null
+                                          ? const Center(
+                                              child: Icon(
+                                              Icons.done,
+                                              color: Colors.green,
+                                              size: 30,
+                                            ))
+                                          : const SizedBox()
+                                    ],
                                   ),
-                                  widget.list[index].imagePath != null
-                                      ? const Center(
-                                          child: Icon(
-                                          Icons.done,
-                                          color: Colors.green,
-                                          size: 30,
-                                        ))
-                                      : const SizedBox()
-                                ],
+                                ),
+                              );
+                            },
+                          ),
+                        ),
+                      ),
+                    ),
+
+                    // zoom and flash
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 300),
+                      left: isHidden ? -60 : 20,
+                      top: 0,
+                      bottom: 0,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          RotatedBox(
+                            quarterTurns: 3,
+                            child: SizedBox(
+                              width: size.height * 0.7,
+                              height: 40,
+                              child: SliderTheme(
+                                data: SliderTheme.of(context).copyWith(
+                                  trackHeight: 5,
+                                  thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
+                                ),
+                                child: Slider(
+                                    min: 1.0,
+                                    max: 8.0,
+                                    activeColor: Colors.white,
+                                    inactiveColor: Colors.white54,
+                                    value: zoomLevel,
+                                    onChanged: cameraZoomLevel),
                               ),
                             ),
-                          );
-                        },
-                      ),
-                    ),
-                  ),
-                ),
-
-                // zoom and flash
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  left: isHidden ? -60 : 20,
-                  top: 0,
-                  bottom: 0,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      RotatedBox(
-                        quarterTurns: 3,
-                        child: SizedBox(
-                          width: size.height * 0.7,
-                          height: 40,
-                          child: SliderTheme(
-                            data: SliderTheme.of(context).copyWith(
-                              trackHeight: 5,
-                              thumbShape: const RoundSliderThumbShape(enabledThumbRadius: 10.0),
+                          ),
+                          GestureDetector(
+                            onTap: toggleFlash,
+                            child: Icon(
+                              isFlashOn ? Icons.flash_off : Icons.flash_on,
+                              color: Colors.white,
+                              size: size.height * 0.12,
                             ),
-                            child: Slider(
-                                min: 1.0, max: 8.0, activeColor: Colors.white, inactiveColor: Colors.white54, value: zoomLevel, onChanged: cameraZoomLevel),
                           ),
-                        ),
+                        ],
                       ),
-                      GestureDetector(
-                        onTap: toggleFlash,
-                        child: Icon(
-                          isFlashOn ? Icons.flash_off : Icons.flash_on,
+                    ),
+
+                    // image picker button
+                    AnimatedPositioned(
+                      duration: const Duration(milliseconds: 300),
+                      right: isHidden ? -70 : 30,
+                      top: 40,
+                      child: GestureDetector(
+                        onTap: () async {
+                          File _file = await ImageSelector().selectImageWithOutCamera(count: 1);
+                          if (_file != null) {
+                            ImagesHolderClass result = widget.list[currentImageIndex];
+                            result.imagePath = _file.path;
+
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DemoNetworkCallInProgress(selectedImage: result),
+                              ),
+                            );
+                            // int index = widget.list.firstWhere((element) => element.imagePath == null).imageIndex;
+                            // if (index != null) {
+                            //   widget.list[currentImageIndex].imagePath = _file.path;
+                            // }
+                            // Navigator.of(context).pop(widget.list);
+                          }
+                        },
+                        child: const Icon(
+                          Icons.image_rounded,
                           color: Colors.white,
-                          size: size.height * 0.12,
+                          size: 50,
                         ),
                       ),
-                    ],
-                  ),
-                ),
-
-                // image picker button
-                AnimatedPositioned(
-                  duration: const Duration(milliseconds: 300),
-                  right: isHidden ? -70 : 30,
-                  top: 40,
-                  child: GestureDetector(
-                    onTap: () async {
-                      File _file = await ImageSelector().selectImageWithOutCamera(count: 1);
-                      if (_file != null) {
-                        ImagesHolderClass result = widget.list[currentImageIndex];
-                        result.imagePath = _file.path;
-
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DemoNetworkCallInProgress(selectedImage: result),
-                          ),
-                        );
-                        // int index = widget.list.firstWhere((element) => element.imagePath == null).imageIndex;
-                        // if (index != null) {
-                        //   widget.list[currentImageIndex].imagePath = _file.path;
-                        // }
-                        // Navigator.of(context).pop(widget.list);
-                      }
-                    },
-                    child: const Icon(
-                      Icons.image_rounded,
-                      color: Colors.white,
-                      size: 50,
                     ),
-                  ),
-                ),
 
-                // image capture button should always be on top
-                Positioned(
-                  right: 10,
-                  top: size.height * 0.5 - devicePadding.top,
-                  child: GestureDetector(
-                    onTap: () async {
-                      String imagePath = await takePicture();
-                      if(imagePath!=null){
-                        ImagesHolderClass result = widget.list[currentImageIndex];
-                        result.imagePath = imagePath;
-                        result.title = widget.list[currentImageIndex].title;
+                    // image capture button should always be on top
+                    Positioned(
+                      right: 10,
+                      top: size.height * 0.5 - devicePadding.top,
+                      child: GestureDetector(
+                        onTap: () async {
+                          String imagePath = await takePicture();
+                          if (imagePath != null) {
+                            ImagesHolderClass result = widget.list[currentImageIndex];
+                            result.imagePath = imagePath;
+                            result.title = widget.list[currentImageIndex].title;
 
-                        Navigator.pushReplacement(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => DemoNetworkCallInProgress(selectedImage: result),
-                          ),
-                        );
-                      }
+                            Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => DemoNetworkCallInProgress(selectedImage: result),
+                              ),
+                            );
+                          }
 
-
-                      // if (currentImageIndex < widget.list.length - 1) {
-                      //   currentImageIndex++;
-                      //   setState(() {});
-                      //   scrollController.animateToPage(currentImageIndex, duration: const Duration(milliseconds: 200), curve: Curves.easeIn);
-                      // } else {
-                      //   Navigator.of(context).pop(widget.list);
-                      // }
-                    },
-                    child: Container(
-                      height: size.width * 0.1,
-                      width: size.width * 0.1,
-                      decoration: BoxDecoration(color: Colors.white.withOpacity(0.9), shape: BoxShape.circle, border: Border.all(color: Colors.black)),
+                          // if (currentImageIndex < widget.list.length - 1) {
+                          //   currentImageIndex++;
+                          //   setState(() {});
+                          //   scrollController.animateToPage(currentImageIndex, duration: const Duration(milliseconds: 200), curve: Curves.easeIn);
+                          // } else {
+                          //   Navigator.of(context).pop(widget.list);
+                          // }
+                        },
+                        child: Container(
+                          height: size.width * 0.1,
+                          width: size.width * 0.1,
+                          decoration: BoxDecoration(
+                              color: Colors.white.withOpacity(0.9), shape: BoxShape.circle, border: Border.all(color: Colors.black)),
+                        ),
+                      ),
                     ),
-                  ),
-                ),
 
-                Positioned(
-                  top: 20,
-                  left: 10,
-                  child: BackButton(
-                      color: Colors.white,
-                      onPressed: () {
-                        return Navigator.of(context).pop();
-                      }),
+                    Positioned(
+                      top: 20,
+                      left: 10,
+                      child: BackButton(
+                          color: Colors.white,
+                          onPressed: () {
+                            return Navigator.of(context).pop();
+                          }),
+                    ),
+                  ],
                 ),
-              ],
-            ),
-          );
-        }),
+              );
+            });
+          }),
+        ),
       ),
     );
   }

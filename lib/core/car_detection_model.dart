@@ -5,11 +5,10 @@ class CarDetectionResponse {
   String message;
   bool state;
 
-  CarDetectionResponse(
-      {this.box, this.carAccuracy, this.image, this.message, this.state});
+  CarDetectionResponse({this.box, this.carAccuracy, this.image, this.message, this.state});
 
   CarDetectionResponse.fromJson(Map<String, dynamic> json) {
-    box = json['box'].cast<num>();
+    box = json['box'] == null ? [] : json['box'].cast<num>();
     carAccuracy = json['car_accuracy'];
     image = json['image'];
     message = json['message'];

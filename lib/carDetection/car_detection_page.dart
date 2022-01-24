@@ -44,7 +44,9 @@ class _CarDetectionPageState extends State<CarDetectionPage> {
             width: size.width,
             color: Colors.grey,
           ),
-          DetectionImage(response: _model,),
+          DetectionImage(
+            response: _model,
+          ),
           SizedBox(
             height: 50,
             width: size.width,
@@ -58,6 +60,7 @@ class _CarDetectionPageState extends State<CarDetectionPage> {
                       _model = null;
                       setState(() {});
                       _model = await detectCarApi(imagePath: _selectedImagePath);
+                      print(_model.toJson());
 
                       isProcessing = false;
                       setState(() {});
@@ -95,7 +98,7 @@ class DetectionImage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if(response==null){
+    if (response == null) {
       return Expanded(child: Container());
     }
     if (response.state) {
@@ -107,17 +110,17 @@ class DetectionImage extends StatelessWidget {
               fit: BoxFit.cover,
             ),
             Positioned(
-              right: 10,bottom: 10,
+              right: 10,
+              bottom: 10,
               child: IconButton(
                 icon: const Icon(Icons.download),
-                onPressed: ()async{
+                onPressed: () async {
                   downloadUrlImage(response.image, context);
                 },
               ),
             )
           ],
         ),
-
       );
     }
 
