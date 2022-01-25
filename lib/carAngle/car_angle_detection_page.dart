@@ -162,6 +162,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
                 IconButton(
                   onPressed: () async {
                     _selectedImagePath = await pickImage(option: imagePickerOption.gallery);
+                       _model = null;
                     setState(() {});
                   },
                   icon: const Icon(Icons.image_rounded),
@@ -169,6 +170,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
                 IconButton(
                   onPressed: () async {
                     _selectedImagePath = await pickImage(option: imagePickerOption.camera);
+                       _model = null;
                     setState(() {});
                   },
                   icon: const Icon(Icons.camera),

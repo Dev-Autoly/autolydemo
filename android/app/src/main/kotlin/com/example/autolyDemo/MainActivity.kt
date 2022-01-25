@@ -1,4 +1,4 @@
-package com.example.guided_camera_demo
+package com.example.autolyDemo
 
 import io.flutter.embedding.android.FlutterActivity
 

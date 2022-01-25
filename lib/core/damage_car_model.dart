@@ -5,7 +5,7 @@
 import 'dart:convert';
 
 class DamageCarModel {
-  DamageCarModel({this.partsDetails, this.damageDetails, this.damageParts, this.state, this.severity, this.isSuccess, this.msg});
+  DamageCarModel({this.partsDetails, this.damageDetails, this.damageParts, this.state, this.severity, this.isSuccess = false, this.msg});
 
   Details partsDetails;
   Details damageDetails;

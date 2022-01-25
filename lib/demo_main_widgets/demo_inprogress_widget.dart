@@ -1,8 +1,10 @@
 import 'dart:io';
+import 'package:autolydemo/carNet/carnet_model.dart';
 import 'package:autolydemo/core/common_functions.dart';
 import 'package:autolydemo/core/damage_car_model.dart';
 import 'package:autolydemo/guided_camera/imageHolderClass.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/scheduler.dart';
 
 import 'demo_result_view.dart';
 
@@ -78,16 +80,19 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
 
   bool updateApiStatus() {
     try {
-      if (_carNetData.carNetModel.detections.isNotEmpty) {
-        return checkApiStatus(_imageTorchApiData) &&
-            checkApiStatus(_enhanceImgTFM1Data) &&
-            checkApiStatus(_removeDarknessM1Data) &&
-            checkApiStatus(_darknessTFM2Data);
-      }
+      // if (_carNetData.carNetModel.detections.isNotEmpty) {
+      return checkApiStatus(_imageTorchApiData) &&
+          checkApiStatus(_enhanceImgTFM1Data) &&
+          checkApiStatus(_enhanceImgTFM1Data) &&
+          checkApiStatus(_darknessTFM2Data) &&
+          checkApiStatus(_removeDarknessM1Data) &&
+          _imageSizeDetail != null &&
+          _angelApiResponse != null &&
+          _damageCarModel.isSuccess;
+      // }
     } catch (e) {
       return false;
     }
-    return false;
   }
 
   @override
@@ -107,7 +112,6 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
-
     return Scaffold(
       appBar: AppBar(
         title: const Text('Image Processing'),
@@ -146,6 +150,8 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     _imageSizeDetail = snapshot.data;
+                    isAllApiSuccessfull = updateApiStatus();
+                    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -200,6 +206,8 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                   if (snapshot.hasData) {
                     if (snapshot.data.imageResponse.isSuccess) {
                       _carNetData = snapshot.data;
+                      isAllApiSuccessfull = updateApiStatus();
+                      SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                       return Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
@@ -275,6 +283,8 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.hasData) {
                     _angelApiResponse = snapshot.data;
+                    isAllApiSuccessfull = updateApiStatus();
+                    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -311,6 +321,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                   if (snapshot.data.isSuccess) {
                     _imageTorchApiData = snapshot.data;
                     isAllApiSuccessfull = updateApiStatus();
+                    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -349,7 +360,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                   if (snapshot.data.isSuccess) {
                     _enhanceImgTFM1Data = snapshot.data;
                     isAllApiSuccessfull = updateApiStatus();
-
+                    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -386,6 +397,7 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.data.isSuccess) {
                     _removeDarknessM1Data = snapshot.data;
+                    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -422,6 +434,8 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.data.isSuccess) {
                     _darknessTFM2Data = snapshot.data;
+                    isAllApiSuccessfull = updateApiStatus();
+                    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -458,6 +472,8 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
                 if (snapshot.connectionState == ConnectionState.done) {
                   if (snapshot.data.isSuccess) {
                     _damageCarModel = snapshot.data;
+                    isAllApiSuccessfull = updateApiStatus();
+                    SchedulerBinding.instance.addPostFrameCallback((_) => setState(() => updateApiStatus()));
                     return ProcessTextWidget(
                       msg: msg,
                       isDone: true,
@@ -480,7 +496,9 @@ class _DemoNetworkCallInProgressState extends State<DemoNetworkCallInProgress> {
               },
             ),
             ElevatedButton(
-              onPressed:() async {
+              onPressed: !updateApiStatus()
+                  ? null
+                  : () async {
                       ConsolidateResult _resultAll = ConsolidateResult(
                           carNetPostProcessResponse: _carNetData,
                           imageTorchApiResponse: _imageTorchApiData,

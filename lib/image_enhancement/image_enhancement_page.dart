@@ -88,6 +88,8 @@ class _ImageEnhancementPageState extends State<ImageEnhancementPage> {
                 IconButton(
                   onPressed: () async {
                     _selectedImagePath = await pickImage(option: imagePickerOption.gallery);
+                    _response = null;
+
                     setState(() {});
                   },
                   icon: const Icon(Icons.image_rounded),
@@ -95,6 +97,8 @@ class _ImageEnhancementPageState extends State<ImageEnhancementPage> {
                 IconButton(
                   onPressed: () async {
                     _selectedImagePath = await pickImage(option: imagePickerOption.camera);
+                    _response = null;
+
                     setState(() {});
                   },
                   icon: const Icon(Icons.camera),

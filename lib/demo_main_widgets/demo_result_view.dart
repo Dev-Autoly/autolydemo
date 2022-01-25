@@ -464,7 +464,7 @@ class _DemoResultViewState extends State<DemoResultView> {
               child: IconButton(
                 icon: const Icon(Icons.download),
                 onPressed: () async {
-                  downloadUrlImage(widget.result.angelApiResponse.image, context);
+                  downloadBytesImage(widget.result.enhanceImgTFM1Response.image, context);
                 },
               ),
             ),
@@ -601,11 +601,6 @@ class _DemoResultViewState extends State<DemoResultView> {
                 child: SizedBox(height: size.height * 0.40, width: size.width - 10, child: getResizeBoxImage()),
               ),
             ]),
-            // JuxtaposeBuilder(
-            //   response: widget.result.enhanceImgTFM1Response,
-            //   modelName: 'Image Resize',
-            //   imageDetail: widget.result.imageDetail,
-            // ),
             const DividerWidget(),
 
             /// Darkness remover Low Light
