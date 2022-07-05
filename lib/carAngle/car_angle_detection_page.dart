@@ -37,7 +37,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
 
   Widget getAngleBoxImage() {
     if (_model != null) {
-      if(_model.image==null){
+      if (_model.image == null) {
         return Center(
           child: Text(_model.msg),
         );
@@ -45,6 +45,21 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
       return Stack(
         children: [
           Center(child: Image.network(replaceImageCloud(_model.image))),
+          Positioned(
+            left: 10,
+            top: 15,
+            child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.start,
+                children: _model.keysInfo
+                    .map(
+                      (e) => Text(
+                        e['name'].toString().replaceAll('_', ' ') + '    ' + e['accracy'].toString() + '%',
+                        style: const TextStyle(color: Colors.black, fontSize: 20, fontWeight: FontWeight.bold),
+                      ),
+                    )
+                    .toList()),
+          ),
           Positioned(
             left: 20,
             bottom: 10,
@@ -70,8 +85,8 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
                 icon: const Icon(Icons.download),
                 onPressed: () async {
                   await requestPermission();
-                  final response =
-                      await Dio().get(replaceImageCloud(replaceImageCloud(_model.image)), options: Options(responseType: ResponseType.bytes));
+                  final response = await Dio()
+                      .get(replaceImageCloud(replaceImageCloud(_model.image)), options: Options(responseType: ResponseType.bytes));
 
                   final result = await ImageGallerySaver.saveImage(Uint8List.fromList(response.data), name: "car_angle");
                   if (result['isSuccess']) {
@@ -162,7 +177,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
                 IconButton(
                   onPressed: () async {
                     _selectedImagePath = await pickImage(option: imagePickerOption.gallery);
-                       _model = null;
+                    _model = null;
                     setState(() {});
                   },
                   icon: const Icon(Icons.image_rounded),
@@ -170,7 +185,7 @@ class _CarAngleDetectionPageState extends State<CarAngleDetectionPage> {
                 IconButton(
                   onPressed: () async {
                     _selectedImagePath = await pickImage(option: imagePickerOption.camera);
-                       _model = null;
+                    _model = null;
                     setState(() {});
                   },
                   icon: const Icon(Icons.camera),

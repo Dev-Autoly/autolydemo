@@ -35,8 +35,9 @@ class AngelApiResponse {
   final String msg;
   final String predictedPosition;
   final bool state;
+  final List keysInfo;
 
-  AngelApiResponse({this.fillingPercentage, this.image, this.msg, this.predictedPosition, this.state});
+  AngelApiResponse({this.fillingPercentage, this.image, this.msg, this.predictedPosition, this.state, this.keysInfo});
 
   Map<String, dynamic> toJson() {
     final Map<String, dynamic> data = <String, dynamic>{};
@@ -45,6 +46,7 @@ class AngelApiResponse {
     data['msg'] = msg;
     data['predictedPosition'] = predictedPosition;
     data['state'] = state;
+    data['keysInfo'] = keysInfo;
     return data;
   }
 }
@@ -225,7 +227,8 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angleOptio
     request.headers.addAll(headers);
     request.fields["payload"] = jsonEncode(payload);
 
-    request.files.add(http.MultipartFile('image', resizeFie.readAsBytes().asStream(), resizeFie.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', resizeFie.readAsBytes().asStream(), resizeFie.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
 
@@ -233,15 +236,23 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angleOptio
       debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
       final respBody = await streamedResponse.stream.bytesToString();
       Map<String, dynamic> jsonResponse = json.decode(respBody.toString());
-      debugPrint('final : $jsonResponse');
+      debugPrint('final 11: $jsonResponse');
 
       final num fillingPercentage = jsonResponse['filling_percentage'] ?? 0.0;
       final String image = jsonResponse['image'] ?? '';
       final String msg = jsonResponse['message'] ?? '';
       final String predictedPosition = jsonResponse['predicted_position'] ?? '';
       final bool state = jsonResponse['state'] ?? false;
+      final List keysInfo = jsonResponse['keysinfo'] ?? [];
 
-      return AngelApiResponse(state: state, msg: msg, image: image, fillingPercentage: fillingPercentage, predictedPosition: predictedPosition);
+      return AngelApiResponse(
+        state: state,
+        msg: msg,
+        image: image,
+        fillingPercentage: fillingPercentage,
+        predictedPosition: predictedPosition,
+        keysInfo: keysInfo,
+      );
     }
     debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
     return AngelApiResponse(state: false, msg: 'unknown error ${streamedResponse.statusCode}');
@@ -257,16 +268,20 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
       ".15&box_select=center&region=DEF&features=mmg,color,angle";
 
   //old api key: 32954476-72e5-47ae-9d27-4e0606735f2e
-  String apiKey = '16ac08db-9d44-4512-afd5-7ffba3707da9';
+  String apiKey = '04c18ffc-2639-4f26-a342-7966951faef7';
 
-  var headers = {'content-type': 'application/octet-stream', 'accept': 'application/json', 'api-key': '16ac08db-9d44-4512-afd5-7ffba3707da9'};
+  var headers = {
+    'content-type': 'application/octet-stream',
+    'accept': 'application/json',
+    'api-key': '04c18ffc-2639-4f26-a342-7966951faef7'
+  };
 
   var request = http.MultipartRequest('POST', Uri.parse(carNetUrl));
 
   request.headers.addAll(headers);
 
-  request.files.add(
-      http.MultipartFile('picture', File(imagePath).readAsBytes().asStream(), File(imagePath).lengthSync(), filename: imagePath.split("/").last));
+  request.files.add(http.MultipartFile('picture', File(imagePath).readAsBytes().asStream(), File(imagePath).lengthSync(),
+      filename: imagePath.split("/").last));
 
   var streamedResponse = await request.send();
   // if (streamedResponse.statusCode == 200) {
@@ -275,6 +290,9 @@ Future<CarNetModel> uploadToCarNet({@required imagePath}) async {
   // var response = http.Response.fromStream(streamedResponse);
   final respBody = await streamedResponse.stream.bytesToString();
   var jsonResponse = json.decode(respBody.toString());
+  print('carNetUrl > $carNetUrl');
+  print('headers > $headers');
+  print('respBody > $respBody');
   return CarNetModel.fromJson(jsonResponse);
 }
 
@@ -365,7 +383,8 @@ Future<CarDetectionResponse> detectCarApi({
     request.headers.addAll(headers);
     request.fields["payload"] = jsonEncode(payload);
 
-    request.files.add(http.MultipartFile('image', resizeFie.readAsBytes().asStream(), resizeFie.lengthSync(), filename: imagePath.split("/").last));
+    request.files
+        .add(http.MultipartFile('image', resizeFie.readAsBytes().asStream(), resizeFie.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got added ${streamedResponse.statusCode}');
@@ -385,7 +404,7 @@ Future<CarDetectionResponse> detectCarApi({
 
 /// api for image enhancement
 Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
-  String imageTorchApi = "http://34.72.28.140:8084/enhanceImgTorchM2";
+  String imageTorchApi = "http://34.133.200.69:8084/enhanceImgTorchM2";
   var headers = {
     'content-type': 'application/octet-stream',
     'accept': 'application/json',
@@ -406,8 +425,8 @@ Future<TorchImageResponse> imageTorchApi({String imagePath}) async {
     var request = http.MultipartRequest('POST', Uri.parse(imageTorchApi));
     request.headers.addAll(headers);
 
-    request.files
-        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files.add(
+        http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
 
@@ -452,8 +471,8 @@ Future<TorchImageResponse> segmentCarApi({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files
-        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files.add(
+        http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -501,8 +520,8 @@ Future<TorchImageResponse> enhanceImgTFM1({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files
-        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files.add(
+        http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -550,8 +569,8 @@ Future<TorchImageResponse> darknessTFM2({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files
-        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files.add(
+        http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -598,8 +617,8 @@ Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
 
-    request.files
-        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files.add(
+        http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
 
     var streamedResponse = await request.send();
     print('got  ${streamedResponse.statusCode}');
@@ -646,8 +665,8 @@ Future<DamageCarModel> damagesDetectionApi({String imagePath}) async {
     // var payload = {'orginal_width':oImageW.toString(), 'orginal_hight':oImageH.toString()};
     // request.fields["payload"] = jsonEncode(payload);
     debugPrint('added header');
-    request.files
-        .add(http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
+    request.files.add(
+        http.MultipartFile('image', originalFile.readAsBytes().asStream(), originalFile.lengthSync(), filename: imagePath.split("/").last));
     debugPrint('added file');
     var streamedResponse = await request.send();
 
