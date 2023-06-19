@@ -122,11 +122,11 @@ class _StepGuidedCameraState extends State<StepGuidedCamera> with WidgetsBinding
       print('Rotating image necessary');
       // rotate
       if (exifData['Image Orientation'].printable.contains('Horizontal')) {
-        fixedImage = img.copyRotate(originalImage, 90);
+        fixedImage = img.copyRotate(originalImage, angle: 90);
       } else if (exifData['Image Orientation'].printable.contains('180')) {
-        fixedImage = img.copyRotate(originalImage, -90);
+        fixedImage = img.copyRotate(originalImage, angle:-90);
       } else {
-        fixedImage = img.copyRotate(originalImage, 0);
+        fixedImage = img.copyRotate(originalImage,angle: 0);
       }
     }
 

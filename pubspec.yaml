@@ -16,28 +16,30 @@ dependencies:
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
-  cupertino_icons: ^1.0.2
-  juxtapose: ^1.2.0
-  http:
-  image_picker:
-  image: ^3.1.0
-  stacked: ^2.2.7
-  provider: ^6.0.1
-  flutter_svg: ^0.22.0
-  fluttertoast: ^8.0.8
-  camera: ^0.9.4+3
-  exif:
-  flutter_exif_rotation: ^0.4.1
-  image_pickers: ^2.0.0+2
-  dio: ^4.0.4
-  path_provider:
-  path:
-  lottie: ^1.2.1
-  palette_generator: ^0.3.2
-  image_gallery_saver: ^1.7.1
-  permission_handler: ^8.3.0
-  image_size_getter: ^1.0.0
-  native_device_orientation: ^1.0.0
+  camera: 0.10.4                    # A Flutter plugin for getting information about and controlling the camera on Android and iOS
+  cupertino_icons: ^1.0.2           # Icon set containing Cupertino-style icons for Flutter apps
+  dio: 5.1.1                        # A powerful Dart Http client for RESTful API requests with interceptors, FormData, request cancellation, etc.
+  exif: 3.1.4                       # A library to read Exif data from images
+  file: 6.1.4                       # A library for manipulating files and directories on the filesystem
+  flutter_exif_rotation: 0.5.1      # A Flutter plugin to read and rotate images based on their Exif data
+  flutter_svg: 2.0.5                # A package to render SVG images in Flutter
+  fluttertoast: 8.2.1               # A plugin to show short-duration toast messages in Flutter
+  http: 0.13.5                      # A composable, Future-based library for making HTTP requests
+  image: 4.0.15                     # A package for working with images in Dart, including decoding, resizing, and encoding images
+  image_gallery_saver: 1.7.1        # A Flutter plugin for saving images to the gallery on Android and iOS
+  image_picker: 0.8.7+3             # A Flutter plugin for picking images from the image library, and taking new pictures with the camera
+  image_pickers: ^2.0.4+1           # A Flutter plugin for picking multiple images and videos from the gallery
+  image_size_getter: 2.1.2          # A package for getting the size of an image without fully decoding it
+  juxtapose: ^1.2.0                 # A package for creating responsive layout components
+  lottie: 2.3.2                     # A package for rendering Lottie animations in Flutter
+  native_device_orientation: 1.1.4  # A Flutter plugin for getting the native device orientation (portrait, landscape, etc.)
+  palette_generator: 0.3.3+2        # A Flutter package for generating color palettes from images
+  path: 1.8.2                       # A string-based path manipulation library for Dart
+  path_provider: 2.0.14             # A Flutter plugin for finding commonly used locations on the filesystem
+  permission_handler: 10.2.0        # A Flutter plugin for requesting permissions on Android and iOS
+  provider: 6.0.5                   # A Flutter package for managing state using the InheritedWidget pattern
+  stacked: 3.2.1                    # A package for implementing the ViewModel-View pattern in Flutter apps
+
 
 
 

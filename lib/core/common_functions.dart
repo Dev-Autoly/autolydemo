@@ -14,8 +14,8 @@ import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:io';
 import 'package:image/image.dart' as img;
-import 'package:palette_generator/palette_generator.dart';
-import 'dart:ui' as ui;
+
+
 
 import 'car_detection_model.dart';
 
@@ -190,14 +190,17 @@ replaceImageCloud(String image) {
 }
 
 Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angleOptional}) async {
-  CarNetModel carNetModel = await uploadToCarNet(imagePath: imagePath);
 
-  String carNetAngle = getAngleFromCarnet(carNetModel);
-  debugPrint(carNetAngle);
-  if (carNetAngle.isEmpty || carNetAngle == null) carNetAngle = angleOptional;
+  String carNetAngle = angleOptional;
 
-  String carAngleApi = "https://validate-cars-positions-yozbt3xo3q-uc.a.run.app/validate_car_pos";
+  // CarNetModel carNetModel = await uploadToCarNet(imagePath: imagePath);
+  //
+  // String carNetAngle = getAngleFromCarnet(carNetModel);
+  // debugPrint(carNetAngle);
+  // if (carNetAngle.isEmpty || carNetAngle == null) carNetAngle = angleOptional;
 
+  //String carAngleApi = "https://validate-cars-positions-yozbt3xo3q-uc.a.run.app/validate_car_pos";
+  String carAngleApi = 'https://validate-car-pos-jxyome2vva-uc.a.run.app/validate_car_pos';
   var headers = {
     'content-type': 'application/octet-stream',
     'accept': 'application/json',
@@ -233,7 +236,7 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angleOptio
     var streamedResponse = await request.send();
 
     if (streamedResponse.statusCode == 200) {
-      debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
+      debugPrint('Car angle response code:${streamedResponse.statusCode} ');
       final respBody = await streamedResponse.stream.bytesToString();
       Map<String, dynamic> jsonResponse = json.decode(respBody.toString());
       debugPrint('final 11: $jsonResponse');
@@ -254,7 +257,8 @@ Future<AngelApiResponse> uploadFileForAngle({String imagePath, String angleOptio
         keysInfo: keysInfo,
       );
     }
-    debugPrint('Car angle respnse code:${streamedResponse.statusCode} ');
+    debugPrint('Car angle response code:${streamedResponse.statusCode} ');
+    debugPrint('Car angle response code:${streamedResponse.stream.bytesToString()} ');
     return AngelApiResponse(state: false, msg: 'unknown error ${streamedResponse.statusCode}');
   } catch (e) {
     debugPrint('Error:${e.toString()}');
@@ -331,14 +335,13 @@ Future<Uint8List> imageWithRect(CarNetModel model, String imagePath) async {
   int y1 = (oImageH * model.detections[0].box.brY).toInt();
   int x2 = oImageW - (oImageW * (model.detections[0].box.tlX)).toInt();
   int y2 = (oImageH * (model.detections[0].box.tlY)).toInt();
-
+  Color whiteColor = Colors.white;
   img.Image rectImage = img.drawRect(
     image,
-    x1,
-    y1,
-    x2,
-    y2,
-    0xFFFFFFFF,
+    x1:x1,
+    y1:y1,
+    x2:x2,
+    y2:y2, color:img.ColorRgba8(255, 255, 255,255),
   );
 
   // int timeStamp = DateTime.now().millisecondsSinceEpoch;
@@ -639,7 +642,9 @@ Future<TorchImageResponse> removeDarknessM1({String imagePath}) async {
 
 /// api to detect damages
 Future<DamageCarModel> damagesDetectionApi({String imagePath}) async {
-  String imageTorchApi = "https://car-damage-detection-yozbt3xo3q-uc.a.run.app/detectDamages";
+  print('function started');
+ // String imageTorchApi = "https://car-damage-detection-yozbt3xo3q-uc.a.run.app/detectDamages";
+  String imageTorchApi ='https://car-damage-detection-jxyome2vva-uc.a.run.app/detectDamages';
   var headers = {
     'content-type': 'application/octet-stream',
     'accept': 'application/json',

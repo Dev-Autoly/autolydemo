@@ -48,9 +48,7 @@ class _SegmentCarPageState extends State<SegmentCarPage> {
               child: _response == null
                   ? const DisplayCenterText(msg: 'Select and upload image')
                   : _response.isSuccess
-                  ? Container(
-                child: Image.memory(_response.image),
-              )
+                  ? Image.memory(_response.image)
                   : DisplayCenterText(msg: _response.msg)),
 
           ///tool box

@@ -1,5 +1,3 @@
-import 'package:autolydemo/core/common_functions.dart';
-import 'package:autolydemo/guided_camera/imageHolderClass.dart';
 import 'package:autolydemo/removeDarknessM1/remove_darkness_m1_home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -10,7 +8,6 @@ import 'carDetection/car_detection_page.dart';
 import 'carNet/carnet_main_widget.dart';
 import 'car_damage_page/car_damage_main.dart';
 import 'darknessTFM2/darkness_tfm2_home.dart';
-import 'demo_main_widgets/demo_inprogress_widget.dart';
 import 'image_resize/resize_image.dart';
 import 'guided_camera/basic_view_model.dart';
 import 'guided_camera/step_exterior_photo.dart';
